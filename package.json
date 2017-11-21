@@ -1,0 +1,11 @@
+{
+  "name": "MongoDBWeb",
+  "description": "ASM Node.js app",
+  "author": "Cheung Tim Fat",
+  "version": "1.0.0",
+  "dependencies": {},
+  "engine": "node >=0.10.0",
+  "scripts": {
+    "start": "node server"
+  }
+}
