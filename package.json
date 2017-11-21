@@ -3,9 +3,12 @@
   "description": "ASM Node.js app",
   "author": "Cheung Tim Fat",
   "version": "1.0.0",
-  "dependencies": {},
+  "dependencies": {
+    "mongo": "^0.1.0",
+		"mongodb": "^2.2.31"
+  },
   "engine": "node >=0.10.0",
   "scripts": {
-    "start": "node server"
+    "start": "node server.js"
   }
 }
