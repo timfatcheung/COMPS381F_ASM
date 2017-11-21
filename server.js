@@ -12,7 +12,7 @@ var bodyParser = require('body-parser');
 var app = express();
 app.set('view engine','ejs');
 
-var mongourl = '';
+var mongourl = 'mongodb://cheungtimfat:y4364935@ds141464.mlab.com:41464/cheungtimfat';
 
 var users = new Array(
 	{name: 'developer', password: 'developer'},
@@ -89,6 +89,7 @@ var server = http.createServer(function(req,res){
 	    console.log('/delete '+JSON.stringify(criteria));
 	    remove(res,criteria);
 	    break;
+			/*
         case '/create':
             var form = new formidable.IncomingForm();
             form.parse(req, function (err, fields, files) {
@@ -124,12 +125,13 @@ var server = http.createServer(function(req,res){
 			res.write(JSON.stringify(new_r));
 			res.end("\ninsert was successful!");
                 }
-                }
+							  }
                 }
             }
             }
 	    console.log('/Create qsp = ' + JSON.stringify(queryAsObject));
 	    break;
+			  */
         case '/updaterate':
 	    console.log('/Create qsp = ' + JSON.stringify(queryAsObject));
 	    updaterate(req, res,queryAsObject);
@@ -273,7 +275,7 @@ function displayRestaurant(req, res,id) {
                                 //google map
                                 res.write('<script>');
                                 function initMap() {
-                                    var uluru = {doc.address.coord_lon,doc.address.coord_lat};
+                                    var uluru = {lat:doc.address.coord_lon,lng:doc.address.coord_lat};
                                     var map = new google.maps.Map(document.getElementById('map'), {
                                         zoom: 4,
                                         center: uluru

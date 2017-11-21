@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "dependencies": {
     "mongo": "^0.1.0",
-		"mongodb": "^2.2.31"
+    "mongodb": "^2.2.31"
   },
   "engine": "node >=0.10.0",
   "scripts": {
