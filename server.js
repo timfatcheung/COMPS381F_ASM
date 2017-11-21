@@ -89,7 +89,7 @@ var server = http.createServer(function(req,res){
 	    console.log('/delete '+JSON.stringify(criteria));
 	    remove(res,criteria);
 	    break;
-			/*
+
         case '/create':
             var form = new formidable.IncomingForm();
             form.parse(req, function (err, fields, files) {
@@ -124,14 +124,14 @@ var server = http.createServer(function(req,res){
 			res.writeHead(200, {"Content-Type": "text/plain"});
 			res.write(JSON.stringify(new_r));
 			res.end("\ninsert was successful!");
-                }
-							  }
-                }
-            }
-            }
+		            })
+						   	})
+							})
+            })
+					})
 	    console.log('/Create qsp = ' + JSON.stringify(queryAsObject));
 	    break;
-			  */
+
         case '/updaterate':
 	    console.log('/Create qsp = ' + JSON.stringify(queryAsObject));
 	    updaterate(req, res,queryAsObject);
@@ -337,7 +337,7 @@ function rateForm(req,res,id, queryAsObject) {
                                     res.write('Yor are the owner!');
 	                            res.end('<button onclick="goBack()">Go Back</button>');
                                 }
-}
+})
 
 function updaterate(req,res,queryAsObject) {
 	var new_r = {};	// document to be inserted
@@ -360,7 +360,7 @@ function updaterate(req,res,queryAsObject) {
 			res.end("\ninsert was successful!");
 		});
 	});
-}
+})
 
 function sendUpdateForm(req,res,queryAsObject) {
 	MongoClient.connect(mongourl, function(err, db) {
