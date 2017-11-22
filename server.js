@@ -241,8 +241,8 @@ function sendNewForm(req,res,queryAsObject) {
 		});
 	});
     }
-    }
-}*/
+	}*/
+}
 
 function displayRestaurant(req, res,id) {
 	MongoClient.connect(mongourl, function(err, db) {
