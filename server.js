@@ -10,6 +10,7 @@ var express = require('express');
 var session = require('cookie-session');
 var bodyParser = require('body-parser');
 var app = express();
+app = express();
 app.set('view engine','ejs');
 
 var mongourl = 'mongodb://cheungtimfat:y4364935@ds141464.mlab.com:41464/cheungtimfat';
@@ -29,7 +30,7 @@ app.use(express.static('public'));
 
 app.get('/',function(req,res) {
 	console.log(req.session);
-	if (!req.session.authenticated) {
+	if (req.session.authenticated) {
 		res.redirect('/login');
 	} else {
 		res.status(200);
