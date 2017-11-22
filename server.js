@@ -32,7 +32,9 @@ app.get('/',function(req,res) {
 	console.log(req.session);
 	if (!req.session.authenticated) {
 		res.redirect('/login');
+		console.log('123');
 	} else {
+		console.log('456');
 		res.status(200);
 		res.render('secrets',{name:req.session.username});
 	}
