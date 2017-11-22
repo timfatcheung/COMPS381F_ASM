@@ -43,7 +43,7 @@ app.get('/',function(req,res) {
 });
 
 app.get('/login',function(req,res) {
-	res.sendFile(__dirname + '/COMPS381F_ASM1/public/login.html');
+	res.sendFile(__dirname + '/public/login.html');
 });
 
 app.post('/login',function(req,res) {
