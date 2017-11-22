@@ -587,4 +587,4 @@ function deleteRestaurant(db,criteria,callback) {
 		callback(result);
 	});
 }
-server.listen(process.env.PORT || 8099);
+app.listen(process.env.PORT || 8099);
