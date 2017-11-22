@@ -241,10 +241,10 @@ function sendNewForm(req,res,queryAsObject) {
 		});
 	});
     }
-	}*/
+	}
 }
-
-function displayRestaurant(req, res,id) {
+*/
+function displayRestaurant(req,res,id) {
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
@@ -431,8 +431,8 @@ function sendUpdateForm(req,res,queryAsObject) {
 			res.writeHead(200, {"Content-Type": "text/plain"});
 			res.end("update was successful!");
 		});
-	});
-}*/
+	});*/
+}
 
 function remove(req, res,criteria) {
 	console.log('About to delete ' + JSON.stringify(criteria));
