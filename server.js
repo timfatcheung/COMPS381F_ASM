@@ -124,11 +124,11 @@ var server = http.createServer(function(req,res){
 			res.writeHead(200, {"Content-Type": "text/plain"});
 			res.write(JSON.stringify(new_r));
 			res.end("\ninsert was successful!");
-                }
-                }
-                }
-            }
-            }
+		})
+	});
+});
+});
+});
 	    console.log('/Create qsp = ' + JSON.stringify(queryAsObject));
 	    break;
         case '/updaterate':
@@ -294,7 +294,7 @@ function displayRestaurant(req, res,id) {
                                 //google map
                                 res.write('<script>');
                                 function initMap() {
-                                    var uluru = {doc.address.coord_lon,doc.address.coord_lat};
+                                    var uluru = {lon:doc.address.coord_lon,lat:doc.address.coord_lat};
                                     var map = new google.maps.Map(document.getElementById('map'), {
                                         zoom: 4,
                                         center: uluru
@@ -356,9 +356,9 @@ function rateForm(req,res,id, queryAsObject) {
                                     res.write('Yor are the owner!');
 	                            res.end('<button onclick="goBack()">Go Back</button>');
                                 }
-                            }
-                        }
-                        }
+                            });
+                        });
+
 
 
 function updaterate(req,res,queryAsObject) {
@@ -382,7 +382,7 @@ function updaterate(req,res,queryAsObject) {
 			res.end("\ninsert was successful!");
 		});
 	});
-}
+
 
 function sendUpdateForm(req,res,queryAsObject) {
 	MongoClient.connect(mongourl, function(err, db) {
@@ -425,8 +425,9 @@ function sendUpdateForm(req,res,queryAsObject) {
 		});
 	});
 }
-
-/*function update(req, res,queryAsObject) {
+}
+/*
+function update(req, res,queryAsObject) {
 	console.log('About to update ' + JSON.stringify(queryAsObject));
 	MongoClient.connect(mongourl,function(err,db) {
 		assert.equal(err,null);
@@ -456,8 +457,8 @@ function sendUpdateForm(req,res,queryAsObject) {
 			res.end("update was successful!");
 		});
 	});
-}*/
-
+}
+*/
 function remove(req, res,criteria) {
 	console.log('About to delete ' + JSON.stringify(criteria));
 	MongoClient.connect(mongourl,function(err,db) {
