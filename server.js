@@ -360,7 +360,7 @@ function updaterate(req,res,queryAsObject) {
 			res.end("\ninsert was successful!");
 		});
 	});
-})
+});
 
 function sendUpdateForm(req,res,queryAsObject) {
 	MongoClient.connect(mongourl, function(err, db) {
