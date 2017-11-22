@@ -38,7 +38,7 @@ app.get('/',function(req,res) {
 });
 
 app.get('/login',function(req,res) {
-	res.sendFile('/public/login.html');
+	res.sendFile(__dirname + '/public/login.html');
 });
 
 app.post('/login',function(req,res) {
