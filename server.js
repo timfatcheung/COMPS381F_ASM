@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-app.get('/',function(req,res) {
+app.get('/login',function(req,res) {
 	console.log(req.session);
 	if (!req.session.authenticated) {
 		res.redirect('/');
@@ -33,7 +33,7 @@ app.get('/',function(req,res) {
 	}
 });
 
-app.get('/',function(req,res) {
+app.get('/login',function(req,res) {
 	res.sendFile(__dirname + '/public/login.html');
 });
 
