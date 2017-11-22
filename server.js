@@ -10,15 +10,20 @@ var express = require('express');
 var session = require('cookie-session');
 var bodyParser = require('body-parser');
 var app = express();
+app = express();
 app.set('view engine','ejs');
 
-var mongourl = 'mongodb://cheungtimfat:y4364935@ds141464.mlab.com:41464/cheungtimfat';
-
+var mongourl = '';
+var SECRETKEY1 = 'I want to pass COMPS381F';
+var SECRETKEY2 = 'Keep this to yourself';
 var users = new Array(
 	{name: 'developer', password: 'developer'},
 	{name: 'demo', password: ''}
 );
-
+app.use(session({
+  name: 'session',
+  keys: [SECRETKEY1,SECRETKEY2]
+}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -33,7 +38,7 @@ app.get('/',function(req,res) {
 	}
 });
 
-app.get('/',function(req,res) {
+app.get('/login',function(req,res) {
 	res.sendFile(__dirname + '/public/login.html');
 });
 
@@ -83,13 +88,12 @@ var server = http.createServer(function(req,res){
             break;
         case '/remove':
 	    var criteria = {};
-	    for (key in queryAsObject) {
+	    for (var key in queryAsObject) {
 		criteria[key] = queryAsObject[key];
 	    }
 	    console.log('/delete '+JSON.stringify(criteria));
 	    remove(res,criteria);
 	    break;
-
         case '/create':
             var form = new formidable.IncomingForm();
             form.parse(req, function (err, fields, files) {
@@ -98,11 +102,12 @@ var server = http.createServer(function(req,res){
             var mimetype = files.filetoupload.type;
             fs.readFile(filename, function(err,data) {
                 MongoClient.connect(mongourl,function(err,db) {
+                var new_r = {};
                 if (queryAsObject.id) new_r['id'] = queryAsObject.id;
 	        if (queryAsObject.name) new_r['name'] = queryAsObject.name;
 	        new_r['borough'] = queryAsObject.borough;
 	        new_r['cuisine'] = queryAsObject.cuisine;
-	        if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.coord) {
+	        //if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.coord) {
 	        var address = {};
 	        address['building'] = queryAsObject.building;
                 address['street'] = queryAsObject.street;
@@ -110,7 +115,7 @@ var server = http.createServer(function(req,res){
                 address['coord_lon'] = queryAsObject.coord_lon;
                 address['coord_lat'] = queryAsObject.coord_lat;
                 new_r['address'] = address;
-	        }
+	        //}
                 if (queryAsObject.cuisine) new_r['owmer'] = req.session.username;
                 new_r['photo'] = new Buffer(data).toString('base64');
                 new_r['mimetype'] = mimetype;
@@ -124,14 +129,13 @@ var server = http.createServer(function(req,res){
 			res.writeHead(200, {"Content-Type": "text/plain"});
 			res.write(JSON.stringify(new_r));
 			res.end("\ninsert was successful!");
-		            })
-						   	})
-							})
-            })
-					})
+		})
+	});
+});
+});
+});
 	    console.log('/Create qsp = ' + JSON.stringify(queryAsObject));
 	    break;
-
         case '/updaterate':
 	    console.log('/Create qsp = ' + JSON.stringify(queryAsObject));
 	    updaterate(req, res,queryAsObject);
@@ -140,6 +144,25 @@ var server = http.createServer(function(req,res){
 	    console.log('/Create qsp = ' + JSON.stringify(queryAsObject));
 	    update(req, res,queryAsObject);
 	    break;
+        case '/register':
+            res.writeHead(200, {"Content-Type": "text/html"});
+            res.write('<html><title>Register</title>');
+	    res.write('<body>');
+            res.write("<form id='details' method='POST' action='/createUser'>");
+            res.write('User name: <input type="text" name="name" ><br>');
+	    res.write('Password: <input type="text" name="password" ><br>');
+	    res.write('Confirm password : <input type="text" name="password2" ><br>');
+	    res.write(' <input type="submit" value="Submit">');
+            res.end('</body></html>');
+            break;
+        case '/createUser':
+            console.log('/createUser ' + JSON.stringify(queryAsObject));
+	    createUser(req,res,queryAsObject);
+            break;
+        case '/login':
+            console.log('/login ' + JSON.stringify(queryAsObject));
+	    login(req,res,queryAsObject);
+            break;
         default:
 	    res.writeHead(404, {"Content-Type": "text/plain"});
 	    res.write("404 Not Found\n");
@@ -198,7 +221,8 @@ function sendNewForm(req,res,queryAsObject) {
 	res.write('function goBack() {window.history.back();}');
 	res.write('</script>');
 	res.write('<button type="submit" form="details">Create</button>');
-	res.end('<button onclick="goBack()">Go Back</button>');
+	res.write('<button onclick="goBack()">Go Back</button>');
+        res.end('</body></html>');
 }
 
 /*function create(req,res,queryAsObject,files) {
@@ -241,10 +265,10 @@ function sendNewForm(req,res,queryAsObject) {
 		});
 	});
     }
-	}
-}
-*/
-function displayRestaurant(req,res,id) {
+    }
+}*/
+
+function displayRestaurant(req, res,id) {
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
@@ -275,7 +299,7 @@ function displayRestaurant(req,res,id) {
                                 //google map
                                 res.write('<script>');
                                 function initMap() {
-                                    var uluru = {lat:doc.address.coord_lon,lng:doc.address.coord_lat};
+                                    var uluru = {lon:doc.address.coord_lon,lat:doc.address.coord_lat};
                                     var map = new google.maps.Map(document.getElementById('map'), {
                                         zoom: 4,
                                         center: uluru
@@ -337,7 +361,10 @@ function rateForm(req,res,id, queryAsObject) {
                                     res.write('Yor are the owner!');
 	                            res.end('<button onclick="goBack()">Go Back</button>');
                                 }
-})
+                            });
+                        });
+
+
 
 function updaterate(req,res,queryAsObject) {
 	var new_r = {};	// document to be inserted
@@ -360,7 +387,7 @@ function updaterate(req,res,queryAsObject) {
 			res.end("\ninsert was successful!");
 		});
 	});
-});
+
 
 function sendUpdateForm(req,res,queryAsObject) {
 	MongoClient.connect(mongourl, function(err, db) {
@@ -392,17 +419,20 @@ function sendUpdateForm(req,res,queryAsObject) {
 				    res.write('<script>');
 				    res.write('function goBack() {window.history.back();}');
 				    res.write('</script>');
+                                    res.end('<body></html>');
                                 } else {
                                     res.write("<H1>Error</H1>");
                                     res.write("You are not authorized to edit!!! ");
-                                    res.end('<button onclick="goBack()">Go Back</button>');
+                                    res.write('<button onclick="goBack()">Go Back</button>');
+                                    res.end('<body></html>');
                                 }
 
 		});
 	});
 }
-
-/*function update(req, res,queryAsObject) {
+}
+/*
+function update(req, res,queryAsObject) {
 	console.log('About to update ' + JSON.stringify(queryAsObject));
 	MongoClient.connect(mongourl,function(err,db) {
 		assert.equal(err,null);
@@ -431,9 +461,9 @@ function sendUpdateForm(req,res,queryAsObject) {
 			res.writeHead(200, {"Content-Type": "text/plain"});
 			res.end("update was successful!");
 		});
-	});*/
+	});
 }
-
+*/
 function remove(req, res,criteria) {
 	console.log('About to delete ' + JSON.stringify(criteria));
 	MongoClient.connect(mongourl,function(err,db) {
@@ -447,6 +477,74 @@ function remove(req, res,criteria) {
 		});
 	});
 }
+
+function createUser(req, res,queryAsObject) {
+	console.log('About to update ' + JSON.stringify(queryAsObject));
+	MongoClient.connect(mongourl,function(err,db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+                var criteria = {};
+		criteria['_id'] = ObjectId(queryAsObject._id);
+		var new_r = {};
+	        if (queryAsObject.name) new_r['name'] = queryAsObject.name;
+                if (queryAsObject.password == queryAsObject.password2 ) {
+                    new_r['password'] = queryAsObject.password;
+                }else {
+                    console.log('Two password are different!');
+                }
+
+		insertUser(db,criteria,new_r,function(result) {
+			db.close();
+			res.writeHead(200, {"Content-Type": "text/plain"});
+			res.end("update was successful!");
+		});
+	})
+}
+
+function login(req, res,queryAsObject) {
+	MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+                var new_r = {};
+                if (queryAsObject.name) new_r['name'] = queryAsObject.name;
+                if (queryAsObject.password) new_r['password'] = queryAsObject.password;
+                findUser(db,new_r,function(user) {
+                    db.close();
+                    if (new_r['name'] == user.name && new_r['password'] == user.password){
+                        req.session.authenticated = true;
+                        req.session.username = user.name;
+                        res.redirect('/read');
+                    } else if (new_r['password'] == user.password){
+                        res.writeHead(200, {"Content-Type": "text/plain"});
+			res.end("Wrong password");
+                        res.redirect('/public/index.html');
+                    }
+		});
+	})
+}
+
+function findUser(db,new_r,callback) {
+	var users = [];
+	 ursor = db.collection('user').find(new_r['name']);
+	cursor.each(function(err, doc) {
+		assert.equal(err, null);
+		if (doc != null) {
+			user.push(doc);
+		} else {
+			res.writeHead(200, {"Content-Type": "text/plain"});
+			res.end("No this user!");
+		}
+	});
+}
+
+function insertUser(db,r,callback) {
+	db.collection('user').insertOne(r,function(err,result) {
+		assert.equal(err,null);
+		console.log("Insert was successful!");
+		callback(result);
+	});
+}
+
 
 function findRestaurants(db,criteria,max,callback) {
 	var restaurants = [];
