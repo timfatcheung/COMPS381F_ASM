@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 
 app.get('/',function(req,res) {
 	console.log(req.session);
-	res.redirect('/login');
+	res.sendFile(__dirname + '/public/login.html');
 	if (!req.session.authenticated) {
 		res.redirect('/login');
 		console.log('123');
