@@ -40,7 +40,7 @@ app.get('/',function(req,res) {
 });
 
 app.get('/login',function(req,res) {
-	res.sendFile(__dirname + '/public/login.html');
+	res.sendFile(__dirname + '/public/index.html');
 });
 
 app.post('/login',function(req,res) {
@@ -51,7 +51,7 @@ app.post('/login',function(req,res) {
 			req.session.username = users[i].name;
 		}
 	}
-	res.redirect('/');
+	res.redirect('/read');
 });
 
 app.get('/logout',function(req,res) {
