@@ -11,6 +11,7 @@ var session = require('cookie-session');
 var bodyParser = require('body-parser');
 var app = express();
 app = express();
+
 app.set('view engine','ejs');
 
 var mongourl = '';
@@ -588,3 +589,4 @@ function deleteRestaurant(db,criteria,callback) {
 	});
 }
 app.listen(process.env.PORT || 8099);
+server.listen(process.env.PORT || 8099);
