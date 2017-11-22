@@ -12,6 +12,7 @@ var bodyParser = require('body-parser');
 var app = express();
 app = express();
 app.set('view engine','ejs');
+app.use(express.static('public'));
 
 var mongourl = 'mongodb://cheungtimfat:y4364935@ds141464.mlab.com:41464/cheungtimfat';
 
@@ -26,10 +27,11 @@ app.use(session({
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(express.static('public'));
+
 
 app.get('/',function(req,res) {
 	console.log(req.session);
+	res.redirect('/login');
 	if (!req.session.authenticated) {
 		res.redirect('/login');
 		console.log('123');
@@ -41,7 +43,7 @@ app.get('/',function(req,res) {
 });
 
 app.get('/login',function(req,res) {
-	res.sendFile(__dirname + '/public/login.html');
+	res.sendFile(__dirname + '/COMPS381F_ASM1/public/login.html');
 });
 
 app.post('/login',function(req,res) {
