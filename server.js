@@ -19,6 +19,10 @@ var users = new Array(
 	{name: 'demo', password: ''}
 );
 
+app.use(session({
+  name: 'session',
+}));
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
