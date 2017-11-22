@@ -26,7 +26,7 @@ app.use(express.static('public'));
 app.get('/',function(req,res) {
 	console.log(req.session);
 	if (!req.session.authenticated) {
-		res.redirect('/');
+		res.redirect('/login');
 	} else {
 		res.status(200);
 		res.render('secrets',{name:req.session.username});
