@@ -7,7 +7,11 @@
     "exif": "^0.6.0",
     "formidable": "^1.1.1",
     "mongo": "^0.1.0",
-    "mongodb": "^2.2.31"
+    "mongodb": "^2.2.31",
+    "express": "*",
+    "ejs": "*",
+    "body-parser": "*",
+    "cookie-session": "*"
   },
   "engine": "node >=0.10.0",
   "scripts": {
