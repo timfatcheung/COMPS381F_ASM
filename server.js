@@ -49,7 +49,7 @@ app.post('/login',function(req,res) {
 			req.session.username = users[i].name;
 		}
 	}
-	res.redirect('/read');
+	res.redirect('/');
 });
 
 app.get('/logout',function(req,res) {
