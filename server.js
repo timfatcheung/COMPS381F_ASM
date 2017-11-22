@@ -23,17 +23,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-app.get('/login',function(req,res) {
+app.get('',function(req,res) {
 	console.log(req.session);
 	if (!req.session.authenticated) {
-		res.redirect('/login');
+		res.redirect('');
 	} else {
 		res.status(200);
 		res.render('secrets',{name:req.session.username});
 	}
 });
 
-app.get('/',function(req,res) {
+app.get('',function(req,res) {
 	res.sendFile(__dirname + '/public/login.html');
 });
 
