@@ -26,14 +26,14 @@ app.use(express.static('public'));
 app.get('/',function(req,res) {
 	console.log(req.session);
 	if (!req.session.authenticated) {
-		res.redirect('/COMPS381F_ASM');
+		res.redirect('/');
 	} else {
 		res.status(200);
 		res.render('secrets',{name:req.session.username});
 	}
 });
 
-app.get('/login',function(req,res) {
+app.get('/',function(req,res) {
 	res.sendFile(__dirname + '/public/login.html');
 });
 
