@@ -26,7 +26,7 @@ app.use(express.static('public'));
 app.get('/',function(req,res) {
 	console.log(req.session);
 	if (!req.session.authenticated) {
-		res.redirect('/login');
+		res.redirect('/COMPS381F_ASM');
 	} else {
 		res.status(200);
 		res.render('secrets',{name:req.session.username});
@@ -34,7 +34,7 @@ app.get('/',function(req,res) {
 });
 
 app.get('/login',function(req,res) {
-	res.sendFile(__dirname + '/public/index.html');
+	res.sendFile(__dirname + '/public/login.html');
 });
 
 app.post('/login',function(req,res) {
