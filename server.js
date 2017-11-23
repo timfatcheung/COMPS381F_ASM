@@ -4,7 +4,7 @@ var fs = require('fs');
 var formidable = require('formidable');
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
-var ObjectID = require('mongodb').ObjectID;
+var ObjectId = require('mongodb').ObjectID;
 var ExifImage = require('exif').ExifImage;
 var express = require('express');
 var session = require('cookie-session');
@@ -269,8 +269,38 @@ function sendNewForm(req,res,queryAsObject) {
     }
     }
 }*/
-
-function displayRestaurant(req, res,id) {
+function displayRestaurant(res,id) {
+	MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		db.collection('restaurants').
+			findOne({_id: ObjectId(id)},function(err,doc) {
+				assert.equal(err,null);
+				db.close();
+				console.log('Disconnected from MongoDB\n');
+				res.writeHead(200, {"Content-Type": "text/html"});
+				res.write('<html><title>'+doc.name+'</title>');
+				res.write('<body>');
+				res.write("<form id='details' method='GET' action='/edit'>");
+				res.write('<input type="hidden" name="_id" value="'+doc._id+'"><br>');
+				res.write('Name: <input type="text" name="name" value="'+doc.name+'" readonly><br>');
+				res.write('Borough: <input type="text" name="borough" value="'+doc.borough+'" readonly><br>');
+				res.write('Cuisine: <input type="text" name="cuisine" value="'+doc.cuisine+'" readonly><br>');
+				res.write('Address:<br>')
+				res.write('<input type="text" name="building" value="'+doc.address.building+'" readonly>');
+				res.write(', ');
+				res.write('<input type="text" name="street" value="'+doc.address.street+'" readonly><br>');
+				res.write('</form>')
+				res.write('<script>');
+				res.write('function goBack() {window.history.back();}');
+				res.write('</script>');
+				res.write('<button type="submit" form="details" value="Edit">Edit</button>');
+				res.end('<button onclick="goBack()">Go Back</button>');
+		});
+	});
+}
+/*
+function displayRestaurant(res,id) {
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
@@ -339,7 +369,7 @@ function displayRestaurant(req, res,id) {
 		});
 	});
 }
-
+*/
 function rateForm(req,res,id, queryAsObject) {
     MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
