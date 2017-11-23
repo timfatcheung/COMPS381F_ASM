@@ -10,17 +10,18 @@ var express = require('express');
 var session = require('cookie-session');
 var bodyParser = require('body-parser');
 var app = express();
-app = express();
-var httpServer = http.createServer(app);
+
+var server = http.createServer(app);
 app.set('view engine','ejs');
 
-var mongourl = '';
+var mongourl = 'mongodb://cheungtimfat:y4364935@ds141464.mlab.com:41464/cheungtimfat';
 var SECRETKEY1 = 'I want to pass COMPS381F';
 var SECRETKEY2 = 'Keep this to yourself';
 var users = new Array(
 	{name: 'developer', password: 'developer'},
 	{name: 'demo', password: ''}
 );
+
 app.use(session({
   name: 'session',
   keys: [SECRETKEY1,SECRETKEY2]
@@ -58,8 +59,8 @@ app.get('/logout',function(req,res) {
 	req.session = null;
 	res.redirect('/');
 });
-
-var server = http.createServer(function(req,res){
+//editing
+app.use(function(req,res){
     console.log("INCOMING REQUEST: " + req.method + " " + req.url);
 
     var parseURL = url.parse(req.url, true);
@@ -588,4 +589,4 @@ function deleteRestaurant(db,criteria,callback) {
 		callback(result);
 	});
 }
-server(app).listen(process.env.PORT || 8099);
+server.listen(process.env.PORT || 8099);
