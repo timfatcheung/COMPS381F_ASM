@@ -15,8 +15,8 @@ var server = http.createServer(app);
 app.set('view engine','ejs');
 
 var mongourl = 'mongodb://cheungtimfat:y4364935@ds141464.mlab.com:41464/cheungtimfat';
-var SECRETKEY1 = 'I want to pass COMPS381F';
-var SECRETKEY2 = 'Keep this to yourself';
+var SECRETKEY1 = 'Random String';
+var SECRETKEY2 = 'key';
 var users = new Array(
 	{name: 'developer', password: 'developer'},
 	{name: 'demo', password: ''}
@@ -78,7 +78,7 @@ app.use(function(req,res){
             break;
         case "/display":
             console.log('/display ' + queryAsObject._id);
-            displayRestaurant(req,res, queryAsObject._id);
+            displayRestaurant(res, queryAsObject._id);
             break;
         case "/rate" :
             console.log('/rate ' + queryAsObject._id);
@@ -570,7 +570,7 @@ function findUser(db,new_r,callback) {
 }
 
 function insertUser(db,r,callback) {
-	db.collection('user').insertOne(r,function(err,result) {
+	db.collection('users').insertOne(r,function(err,result) {
 		assert.equal(err,null);
 		console.log("Insert was successful!");
 		callback(result);
