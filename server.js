@@ -17,10 +17,6 @@ app.set('view engine','ejs');
 var mongourl = 'mongodb://cheungtimfat:y4364935@ds141464.mlab.com:41464/cheungtimfat';
 var SECRETKEY1 = 'Random String';
 var SECRETKEY2 = 'key';
-var users = new Array(
-	{name: 'developer', password: 'developer'},
-	{name: 'demo', password: ''}
-);
 
 app.use(session({
   name: 'session',
