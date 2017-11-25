@@ -147,15 +147,24 @@ app.use(function(req,res){
 	    update(req, res,queryAsObject);
 	    break;
         case '/register':
-            res.writeHead(200, {"Content-Type": "text/html"});
-            res.write('<html><title>Register</title>');
-	    res.write('<body>');
-            res.write("<form id='details' method='POST' action='/createUser'>");
-            res.write('User name: <input type="text" name="name" ><br>');
-	    res.write('Password: <input type="text" name="password" ><br>');
-	    res.write('Confirm password : <input type="text" name="password2" ><br>');
-	    res.write(' <input type="submit" value="Submit">');
-            res.end('</body></html>');
+				console.log('About to update ' + JSON.stringify(queryAsObject));
+				MongoClient.connect(mongourl,function(err,db) {
+					assert.equal(err,null);
+					console.log('Connected to MongoDB\n');
+					var new_r = {};
+				        if (req.name) new_r['name'] = req.name;
+			                if (req.password == req.password2 ) {
+			                    new_r['password'] = req.password;
+			                }else {
+			                    console.log('Two password are different!');
+			                }
+
+					insertUser(db,new_r,function(result) {
+						db.close();
+						res.writeHead(200, {"Content-Type": "text/plain"});
+						res.end("update was successful!");
+					});
+				});
             break;
         case '/createUser':
             console.log('/createUser ' + JSON.stringify(queryAsObject));
@@ -512,25 +521,16 @@ function remove(req, res,criteria) {
 
 function createUser(req, res,queryAsObject) {
 	console.log('About to update ' + JSON.stringify(queryAsObject));
-	MongoClient.connect(mongourl,function(err,db) {
-		assert.equal(err,null);
-		console.log('Connected to MongoDB\n');
-                var criteria = {};
-		criteria['_id'] = ObjectId(queryAsObject._id);
-		var new_r = {};
-	        if (queryAsObject.name) new_r['name'] = queryAsObject.name;
-                if (queryAsObject.password == queryAsObject.password2 ) {
-                    new_r['password'] = queryAsObject.password;
-                }else {
-                    console.log('Two password are different!');
-                }
-
-		insertUser(db,criteria,new_r,function(result) {
-			db.close();
-			res.writeHead(200, {"Content-Type": "text/plain"});
-			res.end("update was successful!");
-		});
-	})
+	res.writeHead(200, {"Content-Type": "text/html"});
+  res.write('<html><title>Register</title>');
+  res.write('<body>');
+  res.write("<form id='details' method='POST' action='/register'>");
+  res.write('User name: <input type="text" name="name" ><br>');
+  res.write('Password: <input type="text" name="password" ><br>');
+  res.write('Confirm password : <input type="text" name="password2" ><br>');
+  res.write('</form>');
+  res.write('<button type="submit" form="details">Submit</button>');
+  res.end('</body></html>');
 }
 
 function login(req, res,queryAsObject) {
