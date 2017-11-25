@@ -549,7 +549,6 @@ function login(req, res,queryAsObject) {
                 var new_r = {};
                 if (req.body.name) new_r['name'] = req.body.name;
                 if (req.body.password) new_r['password'] = req.body.password;
-								console.log(new_r.name);
 								db.collection('users').findOne({"name":(new_r.name)} ,function(err, doc){
                   assert.equal(err,null);
                     db.close();
@@ -561,7 +560,7 @@ function login(req, res,queryAsObject) {
                         res.redirect('/read');
                     } else if (new_r['password'] == doc.password){
                         res.writeHead(200, {"Content-Type": "text/plain"});
-			res.end("Wrong password");
+			                  res.end("Failed..try again");
 		}
 	});
 	})
