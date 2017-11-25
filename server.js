@@ -43,7 +43,7 @@ app.get('/',function(req,res) {
 app.get('/login',function(req,res) {
 	res.sendFile(__dirname + '/public/login.html');
 });
-
+/*
 app.post('/login',function(req,res) {
 	for (var i=0; i<users.length; i++) {
 		if (users[i].name == req.body.name &&
@@ -54,7 +54,7 @@ app.post('/login',function(req,res) {
 	}
 	res.redirect('/read');
 });
-
+*/
 app.get('/logout',function(req,res) {
 	req.session = null;
 	res.redirect('/');
@@ -147,29 +147,37 @@ app.use(function(req,res){
 	    update(req, res,queryAsObject);
 	    break;
         case '/register':
-				console.log('About to update ' + JSON.stringify(queryAsObject));
+				console.log('insert user ' + JSON.stringify(req.body.name));
 				MongoClient.connect(mongourl,function(err,db) {
 					assert.equal(err,null);
 					console.log('Connected to MongoDB\n');
 					var new_r = {};
-				        if (req.name) new_r['name'] = req.name;
-			                if (req.password == req.password2 ) {
-			                    new_r['password'] = req.password;
+				        if (req.body.name) new_r['name'] = req.body.name;
+			                if (req.body.password == req.body.password2 ) {
+			                    new_r['password'] = req.body.password;
+													insertUser(db,new_r,function(result) {
+														db.close();
+														res.writeHead(200, {"Content-Type": "text/html"});
+														res.write("<html><body>");
+														res.write("successful!<br>")
+														res.write("<a href=/login> Back to login page</a>")
+														res.end("</body></html> ");
+													});
 			                }else {
 			                    console.log('Two password are different!');
+													res.writeHead(200, {"Content-Type": "text/html"});
+													res.write("<html><body>");
+													res.write("Fail!<br>")
+													res.write("<a href=/login> Back and try again</a>")
+													res.end("</body></html> ");
 			                }
-
-					insertUser(db,new_r,function(result) {
-						db.close();
-						res.writeHead(200, {"Content-Type": "text/plain"});
-						res.end("update was successful!");
-					});
 				});
             break;
         case '/createUser':
             console.log('/createUser ' + JSON.stringify(queryAsObject));
-	    createUser(req,res,queryAsObject);
+	    createUser(req,res);
             break;
+
         case '/login':
             console.log('/login ' + JSON.stringify(queryAsObject));
 	    login(req,res,queryAsObject);
@@ -519,56 +527,59 @@ function remove(req, res,criteria) {
 	});
 }
 
-function createUser(req, res,queryAsObject) {
-	console.log('About to update ' + JSON.stringify(queryAsObject));
+function createUser(req, res) {
+	console.log('insert user ');
 	res.writeHead(200, {"Content-Type": "text/html"});
   res.write('<html><title>Register</title>');
   res.write('<body>');
-  res.write("<form id='details' method='POST' action='/register'>");
+  res.write("<form id='register' method='POST' action='/register'>");
   res.write('User name: <input type="text" name="name" ><br>');
   res.write('Password: <input type="text" name="password" ><br>');
   res.write('Confirm password : <input type="text" name="password2" ><br>');
-  res.write('</form>');
-  res.write('<button type="submit" form="details">Submit</button>');
+  res.write('<input type="submit" value="Submit">');
+	  res.write('</form>');
   res.end('</body></html>');
 }
+
 
 function login(req, res,queryAsObject) {
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
                 var new_r = {};
-                if (queryAsObject.name) new_r['name'] = queryAsObject.name;
-                if (queryAsObject.password) new_r['password'] = queryAsObject.password;
-                findUser(db,new_r,function(user) {
+                if (req.body.name) new_r['name'] = req.body.name;
+                if (req.body.password) new_r['password'] = req.body.password;
+								console.log(new_r.name);
+								db.collection('users').findOne({"name":(new_r.name)} ,function(err, doc){
+                  assert.equal(err,null);
                     db.close();
-                    if (new_r['name'] == user.name && new_r['password'] == user.password){
+										console.log(doc.name);
+                    if (new_r['name'] == doc.name && new_r['password'] == doc.password){
+											  console.log(doc.name);
                         req.session.authenticated = true;
-                        req.session.username = user.name;
+                        req.session.username = doc.name;
                         res.redirect('/read');
-                    } else if (new_r['password'] == user.password){
+                    } else if (new_r['password'] == doc.password){
                         res.writeHead(200, {"Content-Type": "text/plain"});
 			res.end("Wrong password");
-                        res.redirect('/public/index.html');
-                    }
-		});
+		}
+	});
 	})
 }
-
+/*
 function findUser(db,new_r,callback) {
 	var users = [];
-	 ursor = db.collection('user').find(new_r['name']);
+	 cursor = db.collection('users').findOne(new_r['name']);
 	cursor.each(function(err, doc) {
 		assert.equal(err, null);
 		if (doc != null) {
-			user.push(doc);
+			users.push(doc);
 		} else {
-			res.writeHead(200, {"Content-Type": "text/plain"});
-			res.end("No this user!");
+			callback(users);
 		}
 	});
 }
-
+*/
 function insertUser(db,r,callback) {
 	db.collection('users').insertOne(r,function(err,result) {
 		assert.equal(err,null);
