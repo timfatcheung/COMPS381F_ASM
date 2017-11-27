@@ -548,7 +548,6 @@ function login(req, res,queryAsObject) {
 								db.collection('users').findOne({"name":(new_r.name)} ,function(err, doc){
                   assert.equal(err,null);
                     db.close();
-										console.log(doc.name);
                     if (new_r['name'] == doc.name && new_r['password'] == doc.password){
 											  console.log(doc.name);
                         req.session.authenticated = true;
