@@ -530,8 +530,8 @@ function createUser(req, res) {
   res.write('<body>');
   res.write("<form id='register' method='POST' action='/register'>");
   res.write('User name: <input type="text" name="name" ><br>');
-  res.write('Password: <input type="text" name="password" ><br>');
-  res.write('Confirm password : <input type="text" name="password2" ><br>');
+  res.write('Password: <input type="password" name="password" ><br>');
+  res.write('Confirm password : <input type="password" name="password2" ><br>');
   res.write('<input type="submit" value="Submit">');
 	  res.write('</form>');
   res.end('</body></html>');
