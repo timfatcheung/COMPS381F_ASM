@@ -1,0 +1,23 @@
+
+<html><title>+New+</title>
+<body>
+<form id='details' method='POST' action='/create' enctype='multipart/form-data'>
+<input type="hidden" name="_id" value="'+queryAsObject._id+'"><br>
+  <input type="hidden" name="owner" value="'+req.session.username+'"><br>
+Name: <input type="text" name="name" ><br>
+Borough: <input type="text" name="borough" ><br>
+Cuisine: <input type="text" name="cuisine"  ><br>
+Address<br>
+Building: <input type="text" name="building"  ><br>
+Street: <input type="text" name="street"  ><br>
+Zipcode: <input type="text" name="zipcode"  ><br>
+GPS Coordinates (lon.): <input type="text" name="coord_lon"  ><br>
+GPS Coordinates (lat.)): <input type="text" name="coord_lat"  ><br>
+Photo : <input type="file" name="filetoupload"><br>
+</form>
+<script>
+function goBack() {window.history.back();}
+</script>
+<button type="submit" form="details">Create</button>
+<button onclick="goBack()">Go Back</button>
+</body></html>

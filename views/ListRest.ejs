@@ -1,0 +1,11 @@
+<html><head><title>Restaurant</title></head>
+<body><H1>Restaurants</H1>
+<H2>User : <%= name %> </H2>
+<H2>Showing <%= rlenth %> document(s)</H2>
+<a href=/new>Create New Restaurant</a>
+<ol>
+<% for (var i=0; i<r.length; i++) { %>
+  <li><a href=/display?_id= <%= r[i]._id%>> <%= r[i].name%> </a></li>
+<% } %>
+</ol>
+</body></html>

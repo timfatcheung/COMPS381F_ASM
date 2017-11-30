@@ -1,0 +1,13 @@
+<html><head><title>Restaurant</title></head>
+<body><H1>Restaurants</H1>
+<H2>User : <%= name %> </H2>
+<H2>Showing <%= r %> document(s)</H2>
+<a href=/new>Create New Restaurant</a>
+<ol>
+<script>
+for (var i in restaurants) {
+    res.write('<li><a href=/display?_id='+ restaurants[i]._id+'>'+restaurants[i].name+'</a></li>');
+}
+</script>
+</ol>
+</body></html>

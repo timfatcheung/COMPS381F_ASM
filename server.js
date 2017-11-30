@@ -70,7 +70,7 @@ app.use(function(req,res){
             break;
         case '/new':
             console.log('/new ' + JSON.stringify(queryAsObject));
-	    sendNewForm(req,res,queryAsObject);
+      res.render('sendNewForm',{r:queryAsObject, name:req.session.username});
             break;
         case "/display":
             console.log('/display ' + queryAsObject._id);
@@ -98,23 +98,25 @@ app.use(function(req,res){
             console.log(JSON.stringify(files));
             var filename = files.filetoupload.path;
             var mimetype = files.filetoupload.type;
+            console.log("filename = " + filename);
             fs.readFile(filename, function(err,data) {
                 MongoClient.connect(mongourl,function(err,db) {
                 var new_r = {};
-                if (queryAsObject.id) new_r['id'] = queryAsObject.id;
-	        if (queryAsObject.name) new_r['name'] = queryAsObject.name;
-	        new_r['borough'] = queryAsObject.borough;
-	        new_r['cuisine'] = queryAsObject.cuisine;
+                if (fields.id) new_r['id'] = fields.id;
+	        if (fields.name) new_r['name'] = fields.name;
+          console.log(fields.zipcode);
+	        new_r['borough'] = fields.borough;
+	        new_r['cuisine'] = fields.cuisine;
 	        //if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.coord) {
 	        var address = {};
-	        address['building'] = queryAsObject.building;
-                address['street'] = queryAsObject.street;
-                address['zipcode'] = queryAsObject.streetcoord;
-                address['coord_lon'] = queryAsObject.coord_lon;
-                address['coord_lat'] = queryAsObject.coord_lat;
+	        address['building'] = fields.building;
+                address['street'] = fields.street;
+                address['zipcode'] = fields.zipcode;
+                address['coord_lon'] = fields.coord_lon;
+                address['coord_lat'] = fields.coord_lat;
                 new_r['address'] = address;
 	        //}
-                if (queryAsObject.cuisine) new_r['owmer'] = req.session.username;
+                if (fields.cuisine) new_r['owmer'] = req.session.username;
                 new_r['photo'] = new Buffer(data).toString('base64');
                 new_r['mimetype'] = mimetype;
                 console.log('About to insert: ' + JSON.stringify(new_r));
@@ -171,7 +173,8 @@ app.use(function(req,res){
             break;
         case '/createUser':
             console.log('/createUser ' + JSON.stringify(queryAsObject));
-	    createUser(req,res);
+      res.render('Register',{r:req,name:req.session.username});
+	    //createUser(req,res);
             break;
 
         case '/login':
@@ -196,6 +199,8 @@ function read_n_print(req,res,criteria,max) {
 	res.writeHead(500, {"Content-Type": "text/plain"});
 	res.end('Not found!');
 	} else {
+    res.render('ListRest',{r:restaurants,rlenth:restaurants.Lenth,name:req.session.username});
+    /*
 	res.writeHead(200, {"Content-Type": "text/html"});
 	res.write('<html><head><title>Restaurant</title></head>');
 	res.write('<body><H1>Restaurants</H1>');
@@ -208,29 +213,29 @@ function read_n_print(req,res,criteria,max) {
 	}
 	res.write('</ol>');
 	res.end('</body></html>');
-	return(restaurants);
+	return(restaurants);*/
 	    }
 	});
     });
 }
-
+/*
 function sendNewForm(req,res,queryAsObject) {
 	res.writeHead(200, {"Content-Type": "text/html"});
 	res.write('<html><title>'+queryAsObject.name+'</title>');
 	res.write('<body>');
-	res.write("<form id='details' method='POST' action='/create'>");
+	res.write("<form id='details' method='POST' action='/create' enctype='multipart/form-data'>");
 	res.write('<input type="hidden" name="_id" value="'+queryAsObject._id+'"><br>');
         res.write('<input type="hidden" name="owner" value="'+req.session.username+'"><br>');
 	res.write('Name: <input type="text" name="name" ><br>');
 	res.write('Borough: <input type="text" name="borough" ><br>');
 	res.write('Cuisine: <input type="text" name="cuisine"  ><br>');
-	res.write('Address<br>')
-	res.write('Building: <input type="text" name="address.building"  ><br>');
-	res.write('Street: <input type="text" name="address.street"  ><br>');
-        res.write('Zipcode: <input type="text" name="address.zipcode"  ><br>');
-        res.write('GPS Coordinates (lon.): <input type="text" name="address.coord_lon"  ><br>');
-        res.write('GPS Coordinates (lat.)): <input type="text" name="address.coord_lat"  ><br>');
-        res.write('Photo : <input type="file" name="filetoupload"><br>');
+	res.write('Address:<br>')
+	res.write('Building: <input type="text" name="building"  ><br>');
+	res.write('Street: <input type="text" name="street"  ><br>');
+  res.write('Zipcode: <input type="text" name="zipcode"  ><br>');
+  res.write('GPS Coordinates (lon.): <input type="text" name="coord_lon"  ><br>');
+  res.write('GPS Coordinates (lat.)): <input type="text" name="coord_lat"  ><br>');
+  res.write('Photo : <input type="file" name="filetoupload"><br>');
 	res.write('</form>')
 	res.write('<script>');
 	res.write('function goBack() {window.history.back();}');
@@ -239,7 +244,7 @@ function sendNewForm(req,res,queryAsObject) {
 	res.write('<button onclick="goBack()">Go Back</button>');
         res.end('</body></html>');
 }
-
+*/
 /*function create(req,res,queryAsObject,files) {
     var form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
@@ -522,7 +527,7 @@ function remove(req, res,criteria) {
 		});
 	});
 }
-
+/*
 function createUser(req, res) {
 	console.log('insert user ');
 	res.writeHead(200, {"Content-Type": "text/html"});
@@ -536,7 +541,7 @@ function createUser(req, res) {
 	  res.write('</form>');
   res.end('</body></html>');
 }
-
+*/
 
 function login(req, res,queryAsObject) {
 	MongoClient.connect(mongourl, function(err, db) {
@@ -601,7 +606,7 @@ function findRestaurants(db,criteria,max,callback) {
 }
 
 function insertRestaurant(db,r,callback) {
-	db.collection('restaurants').insertOne(r,function(err,result) {
+	db.collection('restaurants1').insertOne(r,function(err,result) {
 		assert.equal(err,null);
 		console.log("Insert was successful!");
 		callback(result);
