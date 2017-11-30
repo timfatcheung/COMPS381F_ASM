@@ -128,8 +128,45 @@ app.use(function(req,res){
 	    updaterate(req, res,queryAsObject);
 	    break;
         case '/edit':
-	    console.log('/Create qsp = ' + JSON.stringify(queryAsObject));
-	    update(req, res,queryAsObject);
+          var form = new formidable.IncomingForm();
+        console.log('About to update ' + JSON.stringify(queryAsObject));
+          form.parse(req, function (err, fields, files) {
+          console.log(JSON.stringify(files));
+          var filename = files.filetoupload.path;
+          var mimetype = files.filetoupload.type;
+          console.log("filename = " + filename);
+          fs.readFile(filename, function(err,data) {
+              MongoClient.connect(mongourl,function(err,db) {
+                var criteria = {};
+                criteria['_id'] = fields._id;
+              var new_r = {};
+              if (fields.id) new_r['id'] = fields.id;
+          if (fields.name) new_r['name'] = fields.name;
+          console.log(fields.zipcode);
+          new_r['borough'] = fields.borough;
+          new_r['cuisine'] = fields.cuisine;
+          //if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.coord) {
+          var address = {};
+          address['building'] = fields.building;
+              address['street'] = fields.street;
+              address['zipcode'] = fields.zipcode;
+              address['coord_lon'] = fields.coord_lon;
+              address['coord_lat'] = fields.coord_lat;
+              new_r['address'] = address;
+          //}
+              if (fields.cuisine) new_r['owmer'] = req.session.username;
+              new_r['photo'] = new Buffer(data).toString('base64');
+              new_r['mimetype'] = mimetype;
+              console.log('About to update: ' + JSON.stringify(new_r));
+              console.log(JSON.stringify(criteria));
+              updateRestaurant(db,criteria,new_r,function(result) {
+                db.close();
+                res.writeHead(200, {"Content-Type": "text/plain"});
+                res.end("update was successful!");
+              });
+          });
+          });
+          });
 	    break;
         case '/register':
 				console.log('insert user ' + JSON.stringify(req.body.name));
@@ -415,39 +452,52 @@ function sendUpdateForm(req,res,queryAsObject) {
 	});
 }
 
-
+/*
 function update(req, res,queryAsObject) {
 	console.log('About to update ' + JSON.stringify(queryAsObject));
 	MongoClient.connect(mongourl,function(err,db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
-                var criteria = {};
+    var criteria = {};
 		criteria['_id'] = ObjectId(queryAsObject._id);
-		var new_r = {};
-	        if (queryAsObject.id) new_r['id'] = queryAsObject.id;
-	        if (queryAsObject.name) new_r['name'] = queryAsObject.name;
-	         new_r['borough'] = queryAsObject.borough;
-	         new_r['cuisine'] = queryAsObject.cuisine;
-	        var address = {};
-	         address['building'] = queryAsObject.building;
-                 address['street'] = queryAsObject.street;
-                 address['zipcode'] = queryAsObject.streetcoord;
-                 address['coord_lon'] = queryAsObject.coord_lon;
-                 address['coord_lat'] = queryAsObject.coord_lat;
-                new_r['address'] = address;
+    var form = new formidable.IncomingForm();
+    form.parse(req, function (err, fields, files) {
+    console.log(JSON.stringify(files));
+    var filename = files.filetoupload.path;
+    var mimetype = files.filetoupload.type;
+    console.log("filename = " + filename);
+    fs.readFile(filename, function(err,data) {
+        MongoClient.connect(mongourl,function(err,db) {
+        var new_r = {};
+        if (fields.id) new_r['id'] = fields.id;
+    if (fields.name) new_r['name'] = fields.name;
+    console.log(fields.zipcode);
+    new_r['borough'] = fields.borough;
+    new_r['cuisine'] = fields.cuisine;
+    //if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.coord) {
+    var address = {};
+    address['building'] = fields.building;
+        address['street'] = fields.street;
+        address['zipcode'] = fields.zipcode;
+        address['coord_lon'] = fields.coord_lon;
+        address['coord_lat'] = fields.coord_lat;
+        new_r['address'] = address;
+    //}
+        if (fields.cuisine) new_r['owmer'] = req.session.username;
+        new_r['photo'] = new Buffer(data).toString('base64');
+        new_r['mimetype'] = mimetype;
 
-                new_r['photo'] = new Buffer(queryAsObject.data).toString('base64');
-                new_r['mimetype'] = queryAsObject.mimetype;
-
-		console.log('Preparing update: ' + JSON.stringify(newValues));
-		updateRestaurant(db,criteria,new_r,function(result) {
-			db.close();
-			res.writeHead(200, {"Content-Type": "text/plain"});
-			res.end("update was successful!");
-		});
+        updateRestaurant(db,criteria,new_r,function(result) {
+          db.close();
+          res.writeHead(200, {"Content-Type": "text/plain"});
+          res.end("update was successful!");
+        });
+    });
+    });
+    });
 	});
 }
-
+*/
 function remove(req, res,criteria) {
 	console.log('About to delete ' + JSON.stringify(criteria));
 	MongoClient.connect(mongourl,function(err,db) {
