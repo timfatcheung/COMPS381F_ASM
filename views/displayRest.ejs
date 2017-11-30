@@ -6,19 +6,25 @@
     <% }else{ %>
       You can edit this form.
         <% } %>
+<br>
+<img src="data:<%= r.mimetype %>; base64,  <%= r.photo %>" >
 <form id='details' method='GET' action='/change'>
 <input type="hidden" name="_id" value="<%= r._id %>"><br>
-Name: <%= r.name %>" <br>
+Name: <%= r.name %> <br>
 Borough: <%= r.borough %><br>
 Cuisine:<%= r.cuisine %><br>
 Address<br>
-building:<%= r.address.building %>" readonly><br>
+building:<%= r.address.building %><br>
 street:<%= r.address.street %><br>
 zipcode:<%= r.address.zipcode %><br>
 coord_lon:<%= r.address.coord_lon %> <br>
 coord_lat:<%= r.address.coord_lat %><br>
-</form>
 
+</form>
+<form method='GET' action='/rate'>
+<input type="hidden" name="_id" value="<%= r._id %>">
+<button type="submit" value="Rate">Rate</button>
+</form>
 <script>
 function goBack() {window.history.back();}
 </script>

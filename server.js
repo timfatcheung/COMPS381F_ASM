@@ -115,9 +115,7 @@ app.use(function(req,res){
 		    insertRestaurant(db,new_r,function(result) {
 			db.close();
 			console.log(JSON.stringify(result));
-			res.writeHead(200, {"Content-Type": "text/plain"});
-			res.write(JSON.stringify(new_r));
-			res.end("\ninsert was successful!");
+        res.redirect('/read');
 		})
 	});
 });
@@ -245,7 +243,8 @@ function displayRestaurant(req,res,id) {
 				assert.equal(err,null);
 				db.close();
 				console.log('Disconnected from MongoDB\n');
-        res.render('displayRest',{r:doc,name:req.session.username});
+            var image = new Buffer(doc.photo,'base64');
+        res.render('displayRest',{r:doc,name:req.session.username, image:image});
 		});
 	});
 }
@@ -324,18 +323,18 @@ function rateForm(req,res,id, queryAsObject) {
     MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
-		db.collection('restaurants').
+		db.collection('restaurants1').
 			findOne({_id: ObjectId(id)},function(err,doc) {
 				assert.equal(err,null);
 				db.close();
                                 console.log('Disconnected from MongoDB\n');
 	                        res.writeHead(200, {"Content-Type": "text/html"});
-	                        res.write('<html><title>'+Rate+'</title>');
+	                        res.write('<html><title>'+ 'Rate' +'</title>');
 	                        res.write('<body>');
-                                if (doc.grades.user != req.session.username){
+                                if (doc.owmer != req.session.username){
 	                        res.write("<form method='POST' action='/updaterate'>");
 	                        res.write('<input type="hidden" name="_id" value="'+doc._id+'"><br>');
-                                res.write('<input type="hidden" name="grade.user" value="'+req.session.username+'"><br>');
+                                res.write('<input type="hidden" name="doc.owmer" value="'+req.session.username+'"><br>');
 	                        res.write('Score (1-10): <input type="text" name="grade.score"><br>');
 	                        res.write('<button type="submit" form="details">Rate</button>');
 	                        res.end('<button onclick="goBack()">Go Back</button>');
@@ -436,7 +435,7 @@ function update(req, res,queryAsObject) {
                  address['coord_lon'] = queryAsObject.coord_lon;
                  address['coord_lat'] = queryAsObject.coord_lat;
                 new_r['address'] = address;
-	        }
+
                 new_r['photo'] = new Buffer(queryAsObject.data).toString('base64');
                 new_r['mimetype'] = queryAsObject.mimetype;
 
