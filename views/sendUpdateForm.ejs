@@ -1,14 +1,17 @@
-<%if (r.owner == name){ %>
-Name:
-Borough:
-Cuisine:
-Address:
-Building :
-Street :
-Zipcode:
-GPS Coordinates (lat.): >
-GPS Coordinates (lon.): >
-Photo :
-Edit <%} else { %>
-Error
-You are not authorized to edit!!! Go Back <% } %>
+<form id='details' method='GET' action='/change'>
+<input type="hidden" name="_id" value="<%= r._id %>"><br>
+Name: <input type="text" name="name" value="<%= r.name %>" ><br>
+Borough: <input type="text" name="borough" value="<%= r.borough %>" ><br>
+Cuisine: <input type="text" name="cuisine" value="<%= r.cuisine %>" ><br>
+Address<br>
+building:<input type="text" name="building" value="<%= r.address.building %>" ><br>
+street:<input type="text" name="street" value="<%= r.address.street %>" ><br>
+zipcode:<input type="text" name="zipcode" value="<%= r.address.zipcode %>" ><br>
+coord_lon:<input type="text" name="coord_lon" value="<%= r.address.coord_lon %>" ><br>
+coord_lat:<input type="text" name="coord_lat" value="<%= r.address.coord_lat %>" ><br>
+Photo : <input type="file" name="filetoupload" value="<%= r.photo %>"><br>
+</form>
+<script>
+function goBack() {window.history.back();}
+</script>
+<button type="submit" form="details" value="Edit">Edit</button>

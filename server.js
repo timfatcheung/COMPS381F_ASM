@@ -199,52 +199,12 @@ function read_n_print(req,res,criteria,max) {
 	res.writeHead(500, {"Content-Type": "text/plain"});
 	res.end('Not found!');
 	} else {
-    res.render('ListRest',{r:restaurants,rlenth:restaurants.Lenth,name:req.session.username});
-    /*
-	res.writeHead(200, {"Content-Type": "text/html"});
-	res.write('<html><head><title>Restaurant</title></head>');
-	res.write('<body><H1>Restaurants</H1>');
-        res.write('<H2>User :  '+ req.session.username +'</H2>');
-	res.write('<H2>Showing '+restaurants.length+' document(s)</H2>');
-        res.write('<a href=/new>Create New Restaurant</a>');
-	res.write('<ol>');
-	for (var i in restaurants) {
-	    res.write('<li><a href=/display?_id='+ restaurants[i]._id+'>'+restaurants[i].name+'</a></li>');
-	}
-	res.write('</ol>');
-	res.end('</body></html>');
-	return(restaurants);*/
+    res.render('ListRest',{r:restaurants,rlenth:restaurants.length,name:req.session.username});
 	    }
 	});
     });
 }
-/*
-function sendNewForm(req,res,queryAsObject) {
-	res.writeHead(200, {"Content-Type": "text/html"});
-	res.write('<html><title>'+queryAsObject.name+'</title>');
-	res.write('<body>');
-	res.write("<form id='details' method='POST' action='/create' enctype='multipart/form-data'>");
-	res.write('<input type="hidden" name="_id" value="'+queryAsObject._id+'"><br>');
-        res.write('<input type="hidden" name="owner" value="'+req.session.username+'"><br>');
-	res.write('Name: <input type="text" name="name" ><br>');
-	res.write('Borough: <input type="text" name="borough" ><br>');
-	res.write('Cuisine: <input type="text" name="cuisine"  ><br>');
-	res.write('Address:<br>')
-	res.write('Building: <input type="text" name="building"  ><br>');
-	res.write('Street: <input type="text" name="street"  ><br>');
-  res.write('Zipcode: <input type="text" name="zipcode"  ><br>');
-  res.write('GPS Coordinates (lon.): <input type="text" name="coord_lon"  ><br>');
-  res.write('GPS Coordinates (lat.)): <input type="text" name="coord_lat"  ><br>');
-  res.write('Photo : <input type="file" name="filetoupload"><br>');
-	res.write('</form>')
-	res.write('<script>');
-	res.write('function goBack() {window.history.back();}');
-	res.write('</script>');
-	res.write('<button type="submit" form="details">Create</button>');
-	res.write('<button onclick="goBack()">Go Back</button>');
-        res.end('</body></html>');
-}
-*/
+
 /*function create(req,res,queryAsObject,files) {
     var form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
@@ -297,25 +257,6 @@ function displayRestaurant(req,res,id) {
 				db.close();
 				console.log('Disconnected from MongoDB\n');
         res.render('displayRest',{r:doc,name:req.session.username});
-        /*
-				res.writeHead(200, {"Content-Type": "text/html"});
-				res.write('<html><title>'+doc.name+'</title>');
-				res.write('<body>');
-				res.write("<form id='details' method='GET' action='/edit'>");
-				res.write('<input type="hidden" name="_id" value="'+doc._id+'"><br>');
-				res.write('Name: <input type="text" name="name" value="'+doc.name+'" readonly><br>');
-				res.write('Borough: <input type="text" name="borough" value="'+doc.borough+'" readonly><br>');
-				res.write('Cuisine: <input type="text" name="cuisine" value="'+doc.cuisine+'" readonly><br>');
-				res.write('Address:<br>')
-				res.write('<input type="text" name="building" value="'+doc.address.building+'" readonly>');
-				res.write(', ');
-				res.write('<input type="text" name="street" value="'+doc.address.street+'" readonly><br>');
-				res.write('</form>')
-				res.write('<script>');
-				res.write('function goBack() {window.history.back();}');
-				res.write('</script>');
-				res.write('<button type="submit" form="details" value="Edit">Edit</button>');
-				res.end('<button onclick="goBack()">Go Back</button>');*/
 		});
 	});
 }
@@ -445,11 +386,13 @@ function sendUpdateForm(req,res,queryAsObject) {
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
-		db.collection('restaurants').
+		db.collection('restaurants1').
 			findOne({_id: ObjectId(id)},function(err,doc) {
 				assert.equal(err,null);
 				db.close();
 				console.log('Disconnected from MongoDB\n');
+        res.render('sendUpdateForm',{r:doc,name:req.session.username});
+        /*
 				res.writeHead(200, {"Content-Type": "text/html"});
 				res.write('<html><title>'+doc.name+'</title>');
 				res.write('<body>');
@@ -477,7 +420,7 @@ function sendUpdateForm(req,res,queryAsObject) {
                                     res.write("You are not authorized to edit!!! ");
                                     res.write('<button onclick="goBack()">Go Back</button>');
                                     res.end('<body></html>');
-                                }
+                                }*/
 
 		});
 	});
@@ -529,21 +472,6 @@ function remove(req, res,criteria) {
 		});
 	});
 }
-/*
-function createUser(req, res) {
-	console.log('insert user ');
-	res.writeHead(200, {"Content-Type": "text/html"});
-  res.write('<html><title>Register</title>');
-  res.write('<body>');
-  res.write("<form id='register' method='POST' action='/register'>");
-  res.write('User name: <input type="text" name="name" ><br>');
-  res.write('Password: <input type="password" name="password" ><br>');
-  res.write('Confirm password : <input type="password" name="password2" ><br>');
-  res.write('<input type="submit" value="Submit">');
-	  res.write('</form>');
-  res.end('</body></html>');
-}
-*/
 
 function login(req, res,queryAsObject) {
 	MongoClient.connect(mongourl, function(err, db) {
@@ -616,7 +544,7 @@ function insertRestaurant(db,r,callback) {
 }
 
 function updateRestaurant(db,criteria,newValues,callback) {
-	db.collection('restaurants').updateOne(
+	db.collection('restaurants1').updateOne(
 		criteria,{$set: newValues},function(err,result) {
 			assert.equal(err,null);
 			console.log("update was successfully");
@@ -625,7 +553,7 @@ function updateRestaurant(db,criteria,newValues,callback) {
 }
 
 function deleteRestaurant(db,criteria,callback) {
-	db.collection('restaurants').deleteMany(criteria,function(err,result) {
+	db.collection('restaurants1').deleteMany(criteria,function(err,result) {
 		assert.equal(err,null);
 		console.log("Delete was successfully");
 		callback(result);
