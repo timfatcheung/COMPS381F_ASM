@@ -1,13 +1,22 @@
-<html><head><title>Restaurant</title></head>
-<body><H1>Restaurants</H1>
-<H2>User : <%= name %> </H2>
-<H2>Showing <%= r %> document(s)</H2>
-<a href=/new>Create New Restaurant</a>
-<ol>
+
+<html><title><%= r.name %></title>
+<body>
+<form id='details' method='GET' action='/edit'>
+<input type="hidden" name="_id" value="<%= r._id %>"><br>
+Name: <input type="text" name="name" value="<%= r.name %>" readonly><br>
+Borough: <input type="text" name="borough" value="<%= r.borough %>" readonly><br>
+Cuisine: <input type="text" name="cuisine" value="<%= r.cuisine %>" readonly><br>
+Address<br>
+building:<input type="text" name="building" value="<%= r.address.building %>" readonly><br>
+street:<input type="text" name="street" value="<%= r.address.street %>" readonly><br>
+zipcode:<input type="text" name="zipcode" value="<%= r.address.zipcode %>" readonly><br>
+coord_lon:<input type="text" name="coord_lon" value="<%= r.address.coord_lon %>" readonly><br>
+coord_lat:<input type="text" name="coord_lat" value="<%= r.address.coord_lat %>" readonly><br>
+</form>
 <script>
-for (var i in restaurants) {
-    res.write('<li><a href=/display?_id='+ restaurants[i]._id+'>'+restaurants[i].name+'</a></li>');
-}
+function goBack() {window.history.back();}
 </script>
-</ol>
-</body></html>
+<% if (r.owmer == name) { %>
+<button type="submit" form="details" value="Edit">Edit</button>
+<% } %>
+<button onclick="goBack()">Go Back</button>

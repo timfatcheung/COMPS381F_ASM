@@ -74,7 +74,7 @@ app.use(function(req,res){
             break;
         case "/display":
             console.log('/display ' + queryAsObject._id);
-            displayRestaurant(res, queryAsObject._id);
+            displayRestaurant(req,res, queryAsObject._id);
             break;
         case "/rate" :
             console.log('/rate ' + queryAsObject._id);
@@ -287,15 +287,17 @@ function sendNewForm(req,res,queryAsObject) {
     }
     }
 }*/
-function displayRestaurant(res,id) {
+function displayRestaurant(req,res,id) {
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
-		db.collection('restaurants').
+		db.collection('restaurants1').
 			findOne({_id: ObjectId(id)},function(err,doc) {
 				assert.equal(err,null);
 				db.close();
 				console.log('Disconnected from MongoDB\n');
+        res.render('displayRest',{r:doc,name:req.session.username});
+        /*
 				res.writeHead(200, {"Content-Type": "text/html"});
 				res.write('<html><title>'+doc.name+'</title>');
 				res.write('<body>');
@@ -313,7 +315,7 @@ function displayRestaurant(res,id) {
 				res.write('function goBack() {window.history.back();}');
 				res.write('</script>');
 				res.write('<button type="submit" form="details" value="Edit">Edit</button>');
-				res.end('<button onclick="goBack()">Go Back</button>');
+				res.end('<button onclick="goBack()">Go Back</button>');*/
 		});
 	});
 }
@@ -460,7 +462,7 @@ function sendUpdateForm(req,res,queryAsObject) {
 				    res.write('Address:<br>')
 				    res.write('Building : <input type="text" name="building" value="'+doc.address.building+'" readonly><br>');
 				    res.write('Street : <input type="text" name="street" value="'+doc.address.street+'" readonly><br>');
-                                    res.write('Zipcode: <input type="text" name="address.zipcode" value="'+doc.address.zipcode+'" readonly><br>');
+                                    res.write('Zipcode: <input type="text" name="zipcode" value="'+doc.address.zipcode+'" readonly><br>');
                                     res.write('GPS Coordinates (lon.): <input type="text" name="address.coord_lon" value="'+ doc.address.coord_lon +'" readonly> ><br>');
                                     res.write('GPS Coordinates (lat.): <input type="text" name="address.coord_lat" value="'+ doc.address.coord_lat +'" readonly> ><br>');
                                     res.write('Photo : <input type="file" name="filetoupload"><br>');
@@ -591,9 +593,9 @@ function insertUser(db,r,callback) {
 function findRestaurants(db,criteria,max,callback) {
 	var restaurants = [];
 	if (max > 0) {
-		cursor = db.collection('restaurants').find(criteria).limit(max);
+		cursor = db.collection('restaurants1').find(criteria).limit(max);
 	} else {
-		cursor = db.collection('restaurants').find(criteria);
+		cursor = db.collection('restaurants1').find(criteria);
 	}
 	cursor.each(function(err, doc) {
 		assert.equal(err, null);

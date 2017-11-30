@@ -3,7 +3,7 @@
 <body>
 <form id='details' method='POST' action='/create' enctype='multipart/form-data'>
 <input type="hidden" name="_id" value="'+queryAsObject._id+'"><br>
-  <input type="hidden" name="owner" value="'+req.session.username+'"><br>
+<input type="hidden" name="owner" value="<%= name %>"><br>
 Name: <input type="text" name="name" ><br>
 Borough: <input type="text" name="borough" ><br>
 Cuisine: <input type="text" name="cuisine"  ><br>

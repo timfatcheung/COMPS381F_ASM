@@ -5,7 +5,7 @@
 <a href=/new>Create New Restaurant</a>
 <ol>
 <% for (var i=0; i<r.length; i++) { %>
-  <li><a href=/display?_id= <%= r[i]._id%>> <%= r[i].name%> </a></li>
+  <li><a href=/display?_id=<%= r[i]._id%>> <%= r[i].name%> </a></li>
 <% } %>
 </ol>
 </body></html>
