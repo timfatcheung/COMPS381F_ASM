@@ -159,11 +159,15 @@ app.use(function(req,res){
               new_r['mimetype'] = mimetype;
               console.log('About to update: ' + JSON.stringify(new_r));
               console.log(JSON.stringify(criteria));
+              MongoClient.connect(mongourl,function(err,db) {
+              assert.equal(err,null);
+             console.log('Connected to MongoDB\n');
               updateRestaurant(db,criteria,new_r,function(result) {
                 db.close();
                 res.writeHead(200, {"Content-Type": "text/plain"});
                 res.end("update was successful!");
               });
+            });
           });
           });
           });
@@ -584,7 +588,7 @@ function insertRestaurant(db,r,callback) {
 
 function updateRestaurant(db,criteria,newValues,callback) {
 	db.collection('restaurants1').updateOne(
-		criteria,{$set: newValues},function(err,result) {
+		{criteria},{$set: {newValues}},function(err,result) {
 			assert.equal(err,null);
 			console.log("update was successfully");
 			callback(result);
