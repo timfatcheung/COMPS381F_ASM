@@ -39,18 +39,7 @@ app.get('/',function(req,res) {
 app.get('/login',function(req,res) {
 	res.sendFile(__dirname + '/public/login.html');
 });
-/*
-app.post('/login',function(req,res) {
-	for (var i=0; i<users.length; i++) {
-		if (users[i].name == req.body.name &&
-		    users[i].password == req.body.password) {
-			req.session.authenticated = true;
-			req.session.username = users[i].name;
-		}
-	}
-	res.redirect('/read');
-});
-*/
+
 app.get('/logout',function(req,res) {
 	req.session = null;
 	res.redirect('/');
@@ -356,6 +345,7 @@ function rateForm(req,res,id, queryAsObject) {
                                 }
                             });
                         });
+                        }
 
 
 
@@ -366,7 +356,7 @@ function updaterate(req,res,queryAsObject) {
 	    if (queryAsObject.user) grades['user'] = queryAsObject.user;
             if (queryAsObject.score > 0 && queryAsObject.score <= 10) grades['score'] = queryAsObject.score;
             new_r['grades'] = grades;
-        }
+
 	console.log('About to insert: ' + JSON.stringify(new_r));
 
 	MongoClient.connect(mongourl,function(err,db) {
@@ -380,14 +370,14 @@ function updaterate(req,res,queryAsObject) {
 			res.end("\ninsert was successful!");
 		});
 	});
-
+}
 
 function sendUpdateForm(req,res,queryAsObject) {
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
 		db.collection('restaurants1').
-			findOne({_id: ObjectId(id)},function(err,doc) {
+			findOne({_id: ObjectId(queryAsObject._id)},function(err,doc) {
 				assert.equal(err,null);
 				db.close();
 				console.log('Disconnected from MongoDB\n');
@@ -425,8 +415,8 @@ function sendUpdateForm(req,res,queryAsObject) {
 		});
 	});
 }
-}
-/*
+
+
 function update(req, res,queryAsObject) {
 	console.log('About to update ' + JSON.stringify(queryAsObject));
 	MongoClient.connect(mongourl,function(err,db) {
@@ -458,7 +448,7 @@ function update(req, res,queryAsObject) {
 		});
 	});
 }
-*/
+
 function remove(req, res,criteria) {
 	console.log('About to delete ' + JSON.stringify(criteria));
 	MongoClient.connect(mongourl,function(err,db) {
