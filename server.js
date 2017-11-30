@@ -164,8 +164,7 @@ app.use(function(req,res){
              console.log('Connected to MongoDB\n');
               updateRestaurant(db,criteria,new_r,function(result) {
                 db.close();
-                res.writeHead(200, {"Content-Type": "text/plain"});
-                res.end("update was successful!");
+             res.redirect('/read');
               });
             });
           });
@@ -588,9 +587,12 @@ function insertRestaurant(db,r,callback) {
 
 function updateRestaurant(db,criteria,newValues,callback) {
 	db.collection('restaurants1').updateOne(
-		{criteria},{$set: {newValues}},function(err,result) {
+		{_id: ObjectId(criteria._id)},{$set: newValues},function(err,result) {
 			assert.equal(err,null);
+      console.log(JSON.stringify(criteria));
+      console.log(JSON.stringify(newValues));
 			console.log("update was successfully");
+      console.log(result.result);
 			callback(result);
 	});
 }
