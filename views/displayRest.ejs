@@ -19,10 +19,24 @@ street:<%= r.address.street %><br>
 zipcode:<%= r.address.zipcode %><br>
 coord_lon:<%= r.address.coord_lon %> <br>
 coord_lat:<%= r.address.coord_lat %><br>
-
+Rate:
+<ol>
+  <%
+  RrateLength = r.rate;
+  for (var i=1; i<RrateLength.length; i++) {
+    %>
+  <li>user: <%= RrateLength[i].user %> score:<%= RrateLength[i].score %>  </li>
+  <%  } %>
+</ol>
+<br>
 </form>
-<form method='GET' action='/rate'>
+<form method='POST' action='/rate'>
 <input type="hidden" name="_id" value="<%= r._id %>">
+<%
+
+  if (c == 'yes' ){ %>
+<input type="hidden" name="rateuser" value"<%= name %>" >
+<%  } %>
 <button type="submit" value="Rate">Rate</button>
 </form>
 <script>

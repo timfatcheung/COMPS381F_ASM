@@ -66,8 +66,8 @@ app.use(function(req,res){
             displayRestaurant(req,res, queryAsObject._id);
             break;
         case "/rate" :
-            console.log('/rate ' + queryAsObject._id);
-            rateForm(req,res, queryAsObject._id);
+            console.log('/rate ' + req.body._id);
+            rateForm(req,res);
             break;
         case '/change':
             console.log('/change ' + JSON.stringify(queryAsObject));
@@ -105,6 +105,12 @@ app.use(function(req,res){
                 address['coord_lat'] = fields.coord_lat;
                 new_r['address'] = address;
 	        //}
+                var array = [];
+                var rate = {};
+                rate['user'] = null;
+                rate['score'] = null;
+                array = rate;
+                new_r['rate'] = array;
                 if (fields.cuisine) new_r['owmer'] = req.session.username;
                 new_r['photo'] = new Buffer(data).toString('base64');
                 new_r['mimetype'] = mimetype;
@@ -129,7 +135,6 @@ app.use(function(req,res){
 	    break;
         case '/edit':
           var form = new formidable.IncomingForm();
-        console.log('About to update ' + JSON.stringify(queryAsObject));
           form.parse(req, function (err, fields, files) {
           console.log(JSON.stringify(files));
           var filename = files.filetoupload.path;
@@ -142,7 +147,6 @@ app.use(function(req,res){
               var new_r = {};
               if (fields.id) new_r['id'] = fields.id;
           if (fields.name) new_r['name'] = fields.name;
-          console.log(fields.zipcode);
           new_r['borough'] = fields.borough;
           new_r['cuisine'] = fields.cuisine;
           //if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.coord) {
@@ -155,10 +159,13 @@ app.use(function(req,res){
               new_r['address'] = address;
           //}
               if (fields.cuisine) new_r['owmer'] = req.session.username;
+              var check;
+              check = new Buffer(data).toString('base64');
+              if(check.length > 1){
               new_r['photo'] = new Buffer(data).toString('base64');
               new_r['mimetype'] = mimetype;
+            }
               console.log('About to update: ' + JSON.stringify(new_r));
-              console.log(JSON.stringify(criteria));
               MongoClient.connect(mongourl,function(err,db) {
               assert.equal(err,null);
              console.log('Connected to MongoDB\n');
@@ -232,48 +239,6 @@ function read_n_print(req,res,criteria,max) {
     });
 }
 
-/*function create(req,res,queryAsObject,files) {
-    var form = new formidable.IncomingForm();
-    form.parse(req, function (err, fields, files) {
-        var filename = files.filetoupload.path;
-        var mimetype = files.filetoupload.type;
-        fs.readFile(filename, function(err,data) {
-        var filename = files.filetoupload.path;
-	var new_r = {};	// document to be inserted
-	if (queryAsObject.id) new_r['id'] = queryAsObject.id;
-	if (queryAsObject.name) new_r['name'] = queryAsObject.name;
-	new_r['borough'] = queryAsObject.borough;
-	new_r['cuisine'] = queryAsObject.cuisine;
-	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.coord) {
-	    var address = {};
-	    address['building'] = queryAsObject.building;
-            address['street'] = queryAsObject.street;
-            address['zipcode'] = queryAsObject.streetcoord;
-            address['coord_lon'] = queryAsObject.coord_lon;
-            address['coord_lat'] = queryAsObject.coord_lat;
-            new_r['address'] = address;
-	}
-        if (queryAsObject.cuisine) new_r['owmer'] = req.session.username;
-
-                new_r['photo'] = new Buffer(queryAsObject.filetoupload).toString('base64');
-                new_r['mimetype'] = queryAsObject.filetoupload.type;
-
-	console.log('About to insert: ' + JSON.stringify(new_r));
-
-	MongoClient.connect(mongourl,function(err,db) {
-		assert.equal(err,null);
-		console.log('Connected to MongoDB\n');
-		insertRestaurant(db,new_r,function(result) {
-			db.close();
-			console.log(JSON.stringify(result));
-			res.writeHead(200, {"Content-Type": "text/plain"});
-			res.write(JSON.stringify(new_r));
-			res.end("\ninsert was successful!");
-		});
-	});
-    }
-    }
-}*/
 function displayRestaurant(req,res,id) {
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
@@ -284,7 +249,24 @@ function displayRestaurant(req,res,id) {
 				db.close();
 				console.log('Disconnected from MongoDB\n');
             var image = new Buffer(doc.photo,'base64');
-        res.render('displayRest',{r:doc,name:req.session.username, image:image});
+            RrateLength = doc.rate;
+
+            for (var i=1; i<RrateLength.length; i++) {
+              var item = RrateLength[i].user;
+              var check = item.indexOf(req.session.username);
+              if(check== -1){
+                break;
+              }
+            }
+              if (check == -1 ){
+                console.log(JSON.stringify(check));
+                checked = 'yes';
+                res.render('displayRest',{r:doc,name:req.session.username, image:image , c:checked});
+              }else{
+                console.log(JSON.stringify(check));
+                checked= 'no';
+        res.render('displayRest',{r:doc,name:req.session.username, image:image, c:checked});
+      }
 		});
 	});
 }
@@ -359,29 +341,16 @@ function displayRestaurant(res,id) {
 	});
 }
 */
-function rateForm(req,res,id, queryAsObject) {
+function rateForm(req,res) {
     MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
 		db.collection('restaurants1').
-			findOne({_id: ObjectId(id)},function(err,doc) {
+			findOne({_id: ObjectId(req.body._id)},function(err,doc) {
 				assert.equal(err,null);
 				db.close();
                                 console.log('Disconnected from MongoDB\n');
-	                        res.writeHead(200, {"Content-Type": "text/html"});
-	                        res.write('<html><title>'+ 'Rate' +'</title>');
-	                        res.write('<body>');
-                                if (doc.owmer != req.session.username){
-	                        res.write("<form method='POST' action='/updaterate'>");
-	                        res.write('<input type="hidden" name="_id" value="'+doc._id+'"><br>');
-                                res.write('<input type="hidden" name="doc.owmer" value="'+req.session.username+'"><br>');
-	                        res.write('Score (1-10): <input type="text" name="grade.score"><br>');
-	                        res.write('<button type="submit" form="details">Rate</button>');
-	                        res.end('<button onclick="goBack()">Go Back</button>');
-                                } else {
-                                    res.write('Yor are the owner!');
-	                            res.end('<button onclick="goBack()">Go Back</button>');
-                                }
+                          res.render('rateForm',{r:doc,name:req.session.username, user:req.body.rateuser});
                             });
                         });
                         }
@@ -390,23 +359,22 @@ function rateForm(req,res,id, queryAsObject) {
 
 function updaterate(req,res,queryAsObject) {
 	var new_r = {};	// document to be inserted
-        if (queryAsObject.id) new_r['id'] = queryAsObject.id;
-            var grades = {};
-	    if (queryAsObject.user) grades['user'] = queryAsObject.user;
-            if (queryAsObject.score > 0 && queryAsObject.score <= 10) grades['score'] = queryAsObject.score;
-            new_r['grades'] = grades;
+         var criteria = {};
+        if (req.body._id) criteria['_id'] = req.body._id;
+        var grades = {};
+	    if (req.body.name) grades['user'] = req.body.name;
+            if (req.body.score) grades['score'] = req.body.score;
+            new_r['rate'] = grades;
 
 	console.log('About to insert: ' + JSON.stringify(new_r));
 
 	MongoClient.connect(mongourl,function(err,db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
-		insertRestaurant(db,new_r,function(result) {
+		updateRestaurantRate(db,criteria,new_r,function(result) {
 			db.close();
 			console.log(JSON.stringify(result));
-			res.writeHead(200, {"Content-Type": "text/plain"});
-			res.write(JSON.stringify(new_r));
-			res.end("\ninsert was successful!");
+      res.redirect('/display?_id'+ req.body._id );
 		});
 	});
 }
@@ -421,35 +389,6 @@ function sendUpdateForm(req,res,queryAsObject) {
 				db.close();
 				console.log('Disconnected from MongoDB\n');
         res.render('sendUpdateForm',{r:doc,name:req.session.username});
-        /*
-				res.writeHead(200, {"Content-Type": "text/html"});
-				res.write('<html><title>'+doc.name+'</title>');
-				res.write('<body>');
-                                if (doc.owner == req.session.username){
-				    res.write("<form method='GET' action='/create'>");
-				    res.write('<input type="hidden" name="_id" value="'+doc._id+'"><br>');
-				    res.write('Name: <input type="text" name="name" value="'+doc.name+'" readonly><br>');
-				    res.write('Borough: <input type="text" name="borough" value="'+doc.borough+'" readonly><br>');
-				    res.write('Cuisine: <input type="text" name="cuisine" value="'+doc.cuisine+'" readonly><br>');
-				    res.write('Address:<br>')
-				    res.write('Building : <input type="text" name="building" value="'+doc.address.building+'" readonly><br>');
-				    res.write('Street : <input type="text" name="street" value="'+doc.address.street+'" readonly><br>');
-                                    res.write('Zipcode: <input type="text" name="zipcode" value="'+doc.address.zipcode+'" readonly><br>');
-                                    res.write('GPS Coordinates (lon.): <input type="text" name="address.coord_lon" value="'+ doc.address.coord_lon +'" readonly> ><br>');
-                                    res.write('GPS Coordinates (lat.): <input type="text" name="address.coord_lat" value="'+ doc.address.coord_lat +'" readonly> ><br>');
-                                    res.write('Photo : <input type="file" name="filetoupload"><br>');
-                                    res.write('<button type="submit" form="details" value="Edit">Edit</button>');
-			            res.write('</form>')
-				    res.write('<script>');
-				    res.write('function goBack() {window.history.back();}');
-				    res.write('</script>');
-                                    res.end('<body></html>');
-                                } else {
-                                    res.write("<H1>Error</H1>");
-                                    res.write("You are not authorized to edit!!! ");
-                                    res.write('<button onclick="goBack()">Go Back</button>');
-                                    res.end('<body></html>');
-                                }*/
 
 		});
 	});
@@ -589,10 +528,7 @@ function updateRestaurant(db,criteria,newValues,callback) {
 	db.collection('restaurants1').updateOne(
 		{_id: ObjectId(criteria._id)},{$set: newValues},function(err,result) {
 			assert.equal(err,null);
-      console.log(JSON.stringify(criteria));
-      console.log(JSON.stringify(newValues));
 			console.log("update was successfully");
-      console.log(result.result);
 			callback(result);
 	});
 }
@@ -602,6 +538,15 @@ function deleteRestaurant(db,criteria,callback) {
 		assert.equal(err,null);
 		console.log("Delete was successfully");
 		callback(result);
+	});
+}
+
+function updateRestaurantRate(db,criteria,rate,callback) {
+	db.collection('restaurants1').update(
+		{_id: ObjectId(criteria._id)},{$push:rate} ,function(err,result) {
+			assert.equal(err,null);
+			console.log("update was successfully");
+			callback(result);
 	});
 }
 server.listen(process.env.PORT || 8099);

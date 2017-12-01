@@ -1,4 +1,35 @@
-<% if (r.grades.user != name){ %>
-
-Score (1-10):
-Rate Go Back <% } else { %> Yor are the owner! Go Back <% } %>
+<html><title>Rate</title>
+<% if (r.owmer != name){ %>
+<form method='POST' action='/updaterate'>
+<input type="hidden" name="_id" value="<%= r._id %>"><br>
+<input type="hidden" name="name" value="<%= name %>"><br>
+Score (1-10): <select name="score">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+              </select>
+ <% if( user != name){ %>
+<button type="submit" value="Rate">Rate</button>
+ <% }else{%>
+   rating is not allow for multiple times.
+ <%} %>
+</form>
+<script>
+function goBack() {window.history.back();}
+</script>
+<button onclick="goBack()">Go Back</button>
+<% } else { %>
+Yor are the owner!
+<script>
+function goBack() {window.history.back();}
+</script>
+<button onclick="goBack()">Go Back</button>
+<% } %>
+</html>
