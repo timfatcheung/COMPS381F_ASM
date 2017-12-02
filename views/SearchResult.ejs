@@ -1,5 +1,5 @@
 <html><head><title>Restaurant</title></head>
-<body><H1>Restaurants</H1>
+<body><H1>Result</H1>
 <H2>User : <%= name %>  </H2><a href="/logout">Logout</a>
 <H2>Showing <%= rlenth %> document(s)</H2><br>
 <form method="POST" action="/search">
@@ -8,13 +8,13 @@ Search:
                   <option value="name">Name</option>
                   <option value="borough">Borough</option>
                   <option value="cuisine">cuisine</option>
-                  <option value="address.building">Building</option>
-                  <option value="address.street">Street</option>
+                  <option value="building">Building</option>
+                  <option value="street">Street</option>
               </select>
 <input type="text" name="search">
 <input type="submit" value="search">
 </form>
-<a href=/new>Create New Restaurant</a>
+
 
 <ol>
 <% for (var i=0; i<r.length; i++) { %>

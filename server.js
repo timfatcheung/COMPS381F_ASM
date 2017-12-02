@@ -209,6 +209,29 @@ app.use(function(req,res){
 	    //createUser(req,res);
             break;
 
+            case '/search':
+                console.log('/search ' + JSON.stringify(req.body.search));
+                var new_r = {};
+                var searchType = req.body.type;
+                if(searchType == 'name'){
+                new_r['name'] = req.body.search;
+                  console.log(' name ');
+              }else if(searchType == 'borough'){
+                new_r['borough'] = req.body.search;
+                console.log(' borough ');
+              }else if(searchType == 'cuisine'){
+                new_r['cuisine'] = req.body.search;
+                console.log(' cuisine ');
+              }else if(searchType == 'building'){
+                new_r['address'] = '{$eleMatch: { ' + searchType + ': "'+ req.body.search +'"';
+
+              }else if(searchType == ''){
+
+              }
+
+            search(req,res,new_r);
+                break;
+
         case '/login':
             console.log('/login ' + JSON.stringify(queryAsObject));
 	    login(req,res,queryAsObject);
@@ -219,6 +242,22 @@ app.use(function(req,res){
 	    res.end();
     }
 });
+function search(req,res,criteria) {
+    MongoClient.connect(mongourl, function(err, db) {
+    assert.equal(err,null);
+    console.log('Connected to MongoDB\n');
+    db.collection('restaurants1').find(criteria).toArray(function(err,restaurants) {
+  		assert.equal(err,null);
+  		console.log("update was successfully");
+    db.close();
+    console.log('searching ' + JSON.stringify(restaurants.name));
+    if (restaurants.length == 0) {
+	  res.render('SearchResult',{r:restaurants,rlenth:restaurants.length,name:req.session.username});
+	} else {
+    res.render('SearchResult',{r:restaurants,rlenth:restaurants.length,name:req.session.username});
+	    }
+    });});
+}
 
 function read_n_print(req,res,criteria,max) {
     MongoClient.connect(mongourl, function(err, db) {
@@ -268,77 +307,7 @@ function displayRestaurant(req,res,id) {
 		});
 	});
 }
-/*
-function displayRestaurant(res,id) {
-	MongoClient.connect(mongourl, function(err, db) {
-		assert.equal(err,null);
-		console.log('Connected to MongoDB\n');
-		db.collection('restaurants').
-			findOne({_id: ObjectId(id)},function(err,doc) {
-				assert.equal(err,null);
-				db.close();
-                                var image = new Buffer(doc.photo.image,'base64');
-				console.log('Disconnected from MongoDB\n');
-				res.writeHead(200, {"Content-Type": "text/html"});
-				res.write('<html><title>'+doc.name+'</title>');
-				res.write('<body>');
 
-                                var image = new Buffer(doc.photo,'base64');
-                                res.write('<img src="data:'+ doc.mimetype+';base64, '+ doc.image+'">');
-
-				res.write('Borough: '+doc.borough+'<br>');
-				res.write('Cuisine: '+doc.cuisine+'<br>');
-				res.write('Address:<br>')
-				res.write('Building : '+doc.address.building+'<br>');
-				res.write(', ');
-				res.write('Street : '+doc.address.street+'<br>');
-                                res.write('Zipcode: '+doc.address.zipcode+'<br>');
-                                res.write('GPS : ['+doc.address.coord_lon+','+doc.address.coord_lat+']<br>');
-                                res.write('<button type="submit" form="details" value="Edit">Edit</button>');
-				res.write('</form>');
-
-                                //google map
-                                res.write('<script>');
-                                function initMap() {
-                                    var uluru = {lon:doc.address.coord_lon,lat:doc.address.coord_lat};
-                                    var map = new google.maps.Map(document.getElementById('map'), {
-                                        zoom: 4,
-                                        center: uluru
-                                    });
-                                    var marker = new google.maps.Marker({
-                                        position: uluru,
-                                        map: map
-                                    });
-                                }
-                                res.write('</script>');
-                                res.write('<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCpJz36Cq4KPfeYQrzICflT3nAzw-OdA3A&callback=initMap">');
-                                res.write('</script>');
-
-				res.write('<script>');
-				res.write('function goBack() {window.history.back();}');
-				res.write('</script>');
-
-                                if (doc.owner != req.session.username){
-                                res.write("<form method='POST' action='/rate'>");
-                                res.write('<input type="hidden" name="_id" value="'+doc._id+'"><br>');
-                                res.write('<button type="submit" value="Rate">Rate</button>');
-                                res.write('</form>');
-                                }
-                                if (doc.owner == req.session.username){
-                                res.write("<form method='POST' action='/change'>");
-                                res.write('<input type="hidden" name="_id" value="'+doc._id+'"><br>');
-                                res.write('<button type="submit" value="Edit">Edit</button>');
-                                res.write('</form>');
-                                res.write("<form method='POST' action='/remove'>");
-                                res.write('<input type="hidden" name="_id" value="'+doc._id+'"><br>');
-                                res.write('<button type="submit" value="Delete">Delete</button>');
-                                res.write('</form>');
-                                }
-				res.end('<button onclick="goBack()">Go Back</button>');
-		});
-	});
-}
-*/
 function rateForm(req,res) {
     MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
@@ -392,52 +361,7 @@ function sendUpdateForm(req,res,queryAsObject) {
 	});
 }
 
-/*
-function update(req, res,queryAsObject) {
-	console.log('About to update ' + JSON.stringify(queryAsObject));
-	MongoClient.connect(mongourl,function(err,db) {
-		assert.equal(err,null);
-		console.log('Connected to MongoDB\n');
-    var criteria = {};
-		criteria['_id'] = ObjectId(queryAsObject._id);
-    var form = new formidable.IncomingForm();
-    form.parse(req, function (err, fields, files) {
-    console.log(JSON.stringify(files));
-    var filename = files.filetoupload.path;
-    var mimetype = files.filetoupload.type;
-    console.log("filename = " + filename);
-    fs.readFile(filename, function(err,data) {
-        MongoClient.connect(mongourl,function(err,db) {
-        var new_r = {};
-        if (fields.id) new_r['id'] = fields.id;
-    if (fields.name) new_r['name'] = fields.name;
-    console.log(fields.zipcode);
-    new_r['borough'] = fields.borough;
-    new_r['cuisine'] = fields.cuisine;
-    //if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.coord) {
-    var address = {};
-    address['building'] = fields.building;
-        address['street'] = fields.street;
-        address['zipcode'] = fields.zipcode;
-        address['coord_lon'] = fields.coord_lon;
-        address['coord_lat'] = fields.coord_lat;
-        new_r['address'] = address;
-    //}
-        if (fields.cuisine) new_r['owmer'] = req.session.username;
-        new_r['photo'] = new Buffer(data).toString('base64');
-        new_r['mimetype'] = mimetype;
 
-        updateRestaurant(db,criteria,new_r,function(result) {
-          db.close();
-          res.writeHead(200, {"Content-Type": "text/plain"});
-          res.end("update was successful!");
-        });
-    });
-    });
-    });
-	});
-}
-*/
 function remove(req, res,criteria) {
 	console.log('About to delete ' + JSON.stringify(criteria));
 	MongoClient.connect(mongourl,function(err,db) {
@@ -547,4 +471,5 @@ function updateRestaurantRate(db,criteria,rate,callback) {
 			callback(result);
 	});
 }
+
 server.listen(process.env.PORT || 8099);
