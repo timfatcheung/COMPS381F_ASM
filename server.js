@@ -75,11 +75,9 @@ app.use(function(req,res){
             break;
         case '/remove':
 	    var criteria = {};
-	    for (var key in queryAsObject) {
-		criteria[key] = queryAsObject[key];
-	    }
-	    console.log('/delete '+JSON.stringify(criteria));
-	    remove(res,criteria);
+	    criteria['_id'] = req.body._id;
+	    console.log('/delete '+JSON.stringify(criteria._id));
+	    remove(req,res,criteria);
 	    break;
         case '/create':
             var form = new formidable.IncomingForm();
@@ -171,7 +169,7 @@ app.use(function(req,res){
              console.log('Connected to MongoDB\n');
               updateRestaurant(db,criteria,new_r,function(result) {
                 db.close();
-             res.redirect('/read');
+             res.redirect('/display?_id='+ fields._id );
               });
             });
           });
@@ -230,8 +228,7 @@ function read_n_print(req,res,criteria,max) {
     db.close();
     console.log('Disconnected MongoDB\n');
     if (restaurants.length == 0) {
-	res.writeHead(500, {"Content-Type": "text/plain"});
-	res.end('Not found!');
+	  res.render('ListRest',{r:restaurants,rlenth:restaurants.length,name:req.session.username});
 	} else {
     res.render('ListRest',{r:restaurants,rlenth:restaurants.length,name:req.session.username});
 	    }
@@ -253,12 +250,13 @@ function displayRestaurant(req,res,id) {
 
             for (var i=1; i<RrateLength.length; i++) {
               var item = RrateLength[i].user;
-              var check = item.indexOf(req.session.username);
-              if(check== -1){
+              var check = item.includes(req.session.username);
+              console.log(JSON.stringify(check));
+              if(check== true){
                 break;
               }
             }
-              if (check == -1 ){
+              if (check == true ){
                 console.log(JSON.stringify(check));
                 checked = 'yes';
                 res.render('displayRest',{r:doc,name:req.session.username, image:image , c:checked});
@@ -374,7 +372,7 @@ function updaterate(req,res,queryAsObject) {
 		updateRestaurantRate(db,criteria,new_r,function(result) {
 			db.close();
 			console.log(JSON.stringify(result));
-      res.redirect('/display?_id'+ req.body._id );
+      res.redirect('/display?_id='+ req.body._id );
 		});
 	});
 }
@@ -448,8 +446,7 @@ function remove(req, res,criteria) {
 		deleteRestaurant(db,criteria,function(result) {
 			db.close();
 			console.log(JSON.stringify(result));
-			res.writeHead(200, {"Content-Type": "text/plain"});
-			res.end("delete was successful!");
+			res.redirect('/read');
 		});
 	});
 }
@@ -469,7 +466,7 @@ function login(req, res,queryAsObject) {
                         req.session.authenticated = true;
                         req.session.username = doc.name;
                         res.redirect('/read');
-                    } else if (new_r['password'] == doc.password){
+                    } else{
                         res.writeHead(200, {"Content-Type": "text/plain"});
 			                  res.end("Failed..try again");
 		}
@@ -534,7 +531,8 @@ function updateRestaurant(db,criteria,newValues,callback) {
 }
 
 function deleteRestaurant(db,criteria,callback) {
-	db.collection('restaurants1').deleteMany(criteria,function(err,result) {
+	db.collection('restaurants1').deleteMany(
+    {_id: ObjectId(criteria._id)},function(err,result) {
 		assert.equal(err,null);
 		console.log("Delete was successfully");
 		callback(result);

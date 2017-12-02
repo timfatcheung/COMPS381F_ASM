@@ -15,11 +15,8 @@ Score (1-10): <select name="score">
                   <option value="9">9</option>
                   <option value="10">10</option>
               </select>
- <% if( user != name){ %>
+
 <button type="submit" value="Rate">Rate</button>
- <% }else{%>
-   rating is not allow for multiple times.
- <%} %>
 </form>
 <script>
 function goBack() {window.history.back();}
