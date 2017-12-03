@@ -50,6 +50,7 @@ app.post('/api/restaurant/create',function(req,res) {
   console.log('Incoming request: ' + req.method);
 	console.log('Path: ' + req.path);
 	console.log('Request body: ', req.body);
+
   var new_r = {};
    if (req.body.name) new_r['name'] = req.body.name;
    new_r['borough'] = req.body.borough;
@@ -68,31 +69,130 @@ app.post('/api/restaurant/create',function(req,res) {
          array = rate;
          new_r['rate'] = array;
          new_r['owmer'] = 'apiUser';
-         new_r['photo'] = {};
-         new_r['mimetype'] = {};
+         new_r['photo'] = '';
+         new_r['mimetype'] = '';
            console.log('About to insert: ' + JSON.stringify(new_r));
+           MongoClient.connect(mongourl,function(err,db) {
+          assert.equal(err,null);
+            console.log('Connected to MongoDB\n');
+            insertRestaurant(db,new_r,function(result) {
+               db.close();
+               if(result){
+               res.json({
+                 status: 'ok'
+             });}else if(!result){
+               res.json({
+                 status: 'Failed'
+             });
 
-	 res.status(200).end('Connection closed');
-});
+
+         }
+         });
+
+     });
+   });
 
 app.get('/api/restaurant/read/name/:name', function(req,res) {
-  var new_r['name'] = req.body.name;
+  var new_r={};
+  new_r['name'] = req.params.name;
 
   MongoClient.connect(mongourl,function(err,db) {
   assert.equal(err,null);
   console.log('Connected to MongoDB\n');
   db.collection('restaurants1').find(new_r).toArray(function(err,restaurants) {
     assert.equal(err,null);
-   console.log('Connected to MongoDB\n');
   db.close();
+     console.log('Disconnected to MongoDB\n');
+     console.log(JSON.stringify(new_r));
   if (restaurants.length == 0) {
   console.log('No Result\n');
+  res.json({
+    message:"No Result"
+})
 } else {
-    console.log('About to insert: ' + JSON.stringify(restaurants));
+    console.log('About to search: ' + JSON.stringify(restaurants));
+    for (var i=0; i<restaurants.length; i++){
+      var name = restaurants[i].name;
+      var borough = restaurants[i].borough;
+      var cuisine = restaurants[i].cuisine;
     }
-  }
+    res.json({
+      Name: name,
+      Borough:borough,
+      Cuisine:cuisine
+  })
+    }
+  });
 });
-}));
+});
+
+app.get('/api/restaurant/read/borough/:borough', function(req,res) {
+  var new_r={};
+  new_r['borough'] = req.params.borough;
+
+  MongoClient.connect(mongourl,function(err,db) {
+  assert.equal(err,null);
+  console.log('Connected to MongoDB\n');
+  db.collection('restaurants1').find(new_r).toArray(function(err,restaurants) {
+    assert.equal(err,null);
+  db.close();
+     console.log('Disconnected to MongoDB\n');
+     console.log(JSON.stringify(new_r));
+  if (restaurants.length == 0) {
+  console.log('No Result\n');
+  res.json({
+    message:"No Result"
+})
+} else {
+    console.log('About to search: ' + JSON.stringify(restaurants));
+    for (var i=0; i<restaurants.length; i++){
+      var name = restaurants[i].name;
+      var borough = restaurants[i].borough;
+      var cuisine = restaurants[i].cuisine;
+    }
+    res.json({
+      Name: name,
+      Borough:borough,
+      Cuisine:cuisine
+  })
+    }
+  });
+});
+});
+
+app.get('/api/restaurant/read/cuisine/:cuisine', function(req,res) {
+  var new_r={};
+  new_r['cuisine'] = req.params.cuisine;
+
+  MongoClient.connect(mongourl,function(err,db) {
+  assert.equal(err,null);
+  console.log('Connected to MongoDB\n');
+  db.collection('restaurants1').find(new_r).toArray(function(err,restaurants) {
+    assert.equal(err,null);
+  db.close();
+     console.log('Disconnected to MongoDB\n');
+     console.log(JSON.stringify(new_r));
+  if (restaurants.length == 0) {
+  console.log('No Result\n');
+  res.json({
+    message:"No Result"
+})
+} else {
+    console.log('About to search: ' + JSON.stringify(restaurants));
+    for (var i=0; i<restaurants.length; i++){
+      var name = restaurants[i].name;
+      var borough = restaurants[i].borough;
+      var cuisine = restaurants[i].cuisine;
+    }
+    res.json({
+      Name: name,
+      Borough:borough,
+      Cuisine:cuisine
+  })
+    }
+  });
+});
+});
 
 app.use(function(req,res){
     console.log("INCOMING REQUEST: " + req.method + " " + req.url);
