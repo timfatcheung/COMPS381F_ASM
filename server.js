@@ -258,7 +258,7 @@ app.use(function(req,res){
                 rate['score'] = null;
                 array = rate;
                 new_r['rate'] = array;
-                if (fields.cuisine) new_r['owmer'] = req.session.username;
+                new_r['owmer'] = req.session.username;
                 new_r['photo'] = new Buffer(data).toString('base64');
                 new_r['mimetype'] = mimetype;
                 console.log('About to insert: ' + JSON.stringify(new_r.rate));
