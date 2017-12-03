@@ -258,11 +258,9 @@ app.use(function(req,res){
                 rate['score'] = null;
                 array = rate;
                 new_r['rate'] = array;
-<<<<<<< HEAD
-                new_r['owmer'] = req.session.username;
-=======
+                
                new_r['owmer'] = req.session.username;
->>>>>>> 3a312ef11e21c8557f9c2e9e51b71b508174d623
+
                 new_r['photo'] = new Buffer(data).toString('base64');
                 new_r['mimetype'] = mimetype;
                 console.log('About to insert: ' + JSON.stringify(new_r.rate));
