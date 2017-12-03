@@ -44,7 +44,56 @@ app.get('/logout',function(req,res) {
 	req.session = null;
 	res.redirect('/');
 });
-//editing
+
+
+app.post('/api/restaurant/create',function(req,res) {
+  console.log('Incoming request: ' + req.method);
+	console.log('Path: ' + req.path);
+	console.log('Request body: ', req.body);
+  var new_r = {};
+   if (req.body.name) new_r['name'] = req.body.name;
+   new_r['borough'] = req.body.borough;
+   new_r['cuisine'] = req.body.cuisine;
+   var address = {}
+   address['building'] = req.body.building;
+         address['street'] = req.body.street;
+         address['zipcode'] = req.body.zipcode;
+         address['coord_lon'] = req.body.coord_lon;
+         address['coord_lat'] = req.body.coord_lat;
+         new_r['address'] = address;
+         var array = [];
+         var rate = [];
+         rate['user'] = null;
+         rate['score'] = null;
+         array = rate;
+         new_r['rate'] = array;
+         new_r['owmer'] = 'apiUser';
+         new_r['photo'] = {};
+         new_r['mimetype'] = {};
+           console.log('About to insert: ' + JSON.stringify(new_r));
+
+	 res.status(200).end('Connection closed');
+});
+
+app.get('/api/restaurant/read/name/:name', function(req,res) {
+  var new_r['name'] = req.body.name;
+
+  MongoClient.connect(mongourl,function(err,db) {
+  assert.equal(err,null);
+  console.log('Connected to MongoDB\n');
+  db.collection('restaurants1').find(new_r).toArray(function(err,restaurants) {
+    assert.equal(err,null);
+   console.log('Connected to MongoDB\n');
+  db.close();
+  if (restaurants.length == 0) {
+  console.log('No Result\n');
+} else {
+    console.log('About to insert: ' + JSON.stringify(restaurants));
+    }
+  }
+});
+}));
+
 app.use(function(req,res){
     console.log("INCOMING REQUEST: " + req.method + " " + req.url);
 
@@ -104,7 +153,7 @@ app.use(function(req,res){
                 new_r['address'] = address;
 	        //}
                 var array = [];
-                var rate = {};
+                var rate = [];
                 rate['user'] = null;
                 rate['score'] = null;
                 array = rate;
@@ -257,6 +306,7 @@ function search(req,res,criteria) {
 	  res.render('SearchResult',{r:restaurants,rlenth:restaurants.length,name:req.session.username});
 	} else {
     res.render('SearchResult',{r:restaurants,rlenth:restaurants.length,name:req.session.username});
+
 	    }
     });});
 }
@@ -289,20 +339,17 @@ function displayRestaurant(req,res,id) {
             var image = new Buffer(doc.photo,'base64');
             RrateLength = doc.rate;
 
-            for (var i=1; i<RrateLength.length; i++) {
+            for (var i=0; i<RrateLength.length; i++) {
               var item = RrateLength[i].user;
               var check = item.includes(req.session.username);
-              console.log(JSON.stringify(check));
               if(check== true){
                 break;
               }
             }
               if (check == true ){
-                console.log(JSON.stringify(check));
                 checked = 'yes';
                 res.render('displayRest',{r:doc,name:req.session.username, image:image , c:checked});
               }else{
-                console.log(JSON.stringify(check));
                 checked= 'no';
         res.render('displayRest',{r:doc,name:req.session.username, image:image, c:checked});
       }
