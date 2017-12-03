@@ -112,6 +112,7 @@ app.use(function(req,res){
                 if (fields.cuisine) new_r['owmer'] = req.session.username;
                 new_r['photo'] = new Buffer(data).toString('base64');
                 new_r['mimetype'] = mimetype;
+                console.log('About to insert: ' + JSON.stringify(new_r.rate));
                 console.log('About to insert: ' + JSON.stringify(new_r));
                 MongoClient.connect(mongourl,function(err,db) {
 		    assert.equal(err,null);
@@ -215,7 +216,7 @@ app.use(function(req,res){
                 var searchType = req.body.type;
                 if(searchType == 'name'){
                 new_r['name'] = req.body.search;
-                  console.log(' name ');
+                  console.log(JSON.stringify(new_r));
               }else if(searchType == 'borough'){
                 new_r['borough'] = req.body.search;
                 console.log(' borough ');
@@ -223,12 +224,14 @@ app.use(function(req,res){
                 new_r['cuisine'] = req.body.search;
                 console.log(' cuisine ');
               }else if(searchType == 'building'){
-                new_r['address'] = '{$eleMatch: { ' + searchType + ': "'+ req.body.search +'"';
-
-              }else if(searchType == ''){
-
+                new_r['address.'+searchType] = req.body.search;
+                console.log('searching'+JSON.stringify(new_r));
+                console.log(JSON.stringify(req.body.search));
+              }else if(searchType == 'street'){
+                new_r['address.'+searchType] = req.body.search;
+                console.log('searching'+JSON.stringify(new_r));
+                console.log(JSON.stringify(req.body.search));
               }
-
             search(req,res,new_r);
                 break;
 
@@ -248,9 +251,8 @@ function search(req,res,criteria) {
     console.log('Connected to MongoDB\n');
     db.collection('restaurants1').find(criteria).toArray(function(err,restaurants) {
   		assert.equal(err,null);
-  		console.log("update was successfully");
+  		console.log("Search was successfully");
     db.close();
-    console.log('searching ' + JSON.stringify(restaurants.name));
     if (restaurants.length == 0) {
 	  res.render('SearchResult',{r:restaurants,rlenth:restaurants.length,name:req.session.username});
 	} else {
