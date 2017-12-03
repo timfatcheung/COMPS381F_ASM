@@ -258,7 +258,7 @@ app.use(function(req,res){
                 rate['score'] = null;
                 array = rate;
                 new_r['rate'] = array;
-                if (fields.cuisine) new_r['owmer'] = req.session.username;
+               new_r['owmer'] = req.session.username;
                 new_r['photo'] = new Buffer(data).toString('base64');
                 new_r['mimetype'] = mimetype;
                 console.log('About to insert: ' + JSON.stringify(new_r.rate));
@@ -340,18 +340,36 @@ app.use(function(req,res){
 					assert.equal(err,null);
 					console.log('Connected to MongoDB\n');
 					var new_r = {};
-          if (req.body.name && req.body.password != null){
+          if (req.body.name && req.body.password != ""){
 				        if (req.body.name) new_r['name'] = req.body.name;
 			                if (req.body.password == req.body.password2 ) {
 			                    new_r['password'] = req.body.password;
-													insertUser(db,new_r,function(result) {
-														db.close();
-														res.writeHead(200, {"Content-Type": "text/html"});
-														res.write("<html><body>");
-														res.write("successful!<br>")
-														res.write("<a href=/login> Back to login page</a>")
-														res.end("</body></html> ");
-													});
+
+                          db.collection('users').findOne({"name":(new_r.name)} ,function(err, doc){
+                            assert.equal(err,null);
+
+                              console.log('running....'+JSON.stringify(req.body.password));
+
+
+                              if (doc!=null){
+                                res.writeHead(200, {"Content-Type": "text/html"});
+                                res.write("<html><body>");
+                                res.write("User Exist!!<br>")
+                                res.write("<a href=/login> Back to login page</a>")
+                                res.end("</body></html> ");
+                              } else{
+                                insertUser(db,new_r,function(result) {
+                                  db.close();
+                                  res.writeHead(200, {"Content-Type": "text/html"});
+                                  res.write("<html><body>");
+                                  res.write("successful!<br>")
+                                  res.write("<a href=/login> Back to login page</a>")
+                                  res.end("</body></html> ");
+                                });
+              }
+            });
+
+
 			                }else {
 			                    console.log('Two password are different!');
 													res.writeHead(200, {"Content-Type": "text/html"});
