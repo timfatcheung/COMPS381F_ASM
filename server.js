@@ -266,11 +266,19 @@ app.use(function(req,res){
                 MongoClient.connect(mongourl,function(err,db) {
 		    assert.equal(err,null);
 		    console.log('Connected to MongoDB\n');
+        if(new_r.name !=null){
 		    insertRestaurant(db,new_r,function(result) {
 			db.close();
 			console.log(JSON.stringify(result));
         res.redirect('/read');
-		})
+		});
+  }else{
+    res.writeHead(200, {"Content-Type": "text/html"});
+    res.write("<html><body>");
+    res.write("Fail!<br>")
+    res.write("<a href=/new> Back and try again</a>")
+    res.end("</body></html> ");
+  }
 	});
 });
 });
@@ -332,6 +340,7 @@ app.use(function(req,res){
 					assert.equal(err,null);
 					console.log('Connected to MongoDB\n');
 					var new_r = {};
+          if (req.body.name && req.body.password != null){
 				        if (req.body.name) new_r['name'] = req.body.name;
 			                if (req.body.password == req.body.password2 ) {
 			                    new_r['password'] = req.body.password;
@@ -351,7 +360,13 @@ app.use(function(req,res){
 													res.write("<a href=/login> Back and try again</a>")
 													res.end("</body></html> ");
 			                }
-				});
+				}else{
+          res.writeHead(200, {"Content-Type": "text/html"});
+          res.write("<html><body>");
+          res.write("Fail!<br>")
+          res.write("<a href=/login> Back and try again</a>")
+          res.end("</body></html> ");
+        }});
             break;
         case '/createUser':
             console.log('/createUser ' + JSON.stringify(queryAsObject));
@@ -529,11 +544,13 @@ function login(req, res,queryAsObject) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
                 var new_r = {};
-                if (req.body.name) new_r['name'] = req.body.name;
-                if (req.body.password) new_r['password'] = req.body.password;
+                if (req.body.name!==null && req.body.password !== ""){
+                  new_r['name'] = req.body.name
+                  new_r['password'] = req.body.password;
 								db.collection('users').findOne({"name":(new_r.name)} ,function(err, doc){
                   assert.equal(err,null);
                     db.close();
+                    console.log('running....'+JSON.stringify(req.body.password));
                     if (new_r['name'] == doc.name && new_r['password'] == doc.password){
 											  console.log(doc.name);
                         req.session.authenticated = true;
@@ -544,7 +561,10 @@ function login(req, res,queryAsObject) {
 			                  res.end("Failed..try again");
 		}
 	});
-	})
+}else{
+  res.writeHead(200, {"Content-Type": "text/plain"});
+  res.end("Failed..try again");
+}})
 }
 /*
 function findUser(db,new_r,callback) {
